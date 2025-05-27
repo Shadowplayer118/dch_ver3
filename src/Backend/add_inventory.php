@@ -3,6 +3,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json");
+            date_default_timezone_set('Asia/Manila');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
@@ -79,6 +80,8 @@ if ($stmt->execute()) {
         '$wh_area', '$store_area', '$wh_thresh', '$store_thresh', '$img',
         $tsv, $is_deleted, NOW(), NOW())";
 
+
+
     $log_sql = "INSERT INTO activity_report (
         activity_type, table_performed, act_performed,
         date_performed, time_performed, is_deleted, username, user_type
@@ -88,7 +91,7 @@ if ($stmt->execute()) {
     if ($log_stmt) {
         $activity_type = "INSERT";
         $table_performed = "INVENTORY";
-        $log_stmt->bind_param('ssss', $activity_type, $table_performed, $act_performed, $username, $user_type);
+        $log_stmt->bind_param('sssss', $activity_type, $table_performed, $act_performed, $username, $user_type);
         $log_stmt->execute();
         $log_stmt->close();
     }

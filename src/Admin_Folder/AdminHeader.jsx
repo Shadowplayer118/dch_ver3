@@ -17,6 +17,7 @@ function AdminHeader() {
       <nav>
         <Link to="/AdminDashboard">Dashboard</Link>
         <Link to="/InventoryTable">Inventory</Link>
+        <Link to="/StockInOutTable">Stock In/Out</Link>
       </nav>
 
       <button onClick={handleLogout}>

@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminHeader from "./AdminHeader";
 
-import AddInventory_Modal from "./Modals_Folder/AddInventory_Modal";
-import EditInventory_Modal from "./Modals_Folder/EditInventory_Modal";
+import StockIn_Modal from "./Modals_Folder/StockIn_Modal";
+import StockOut_Modal from "./Modals_Folder/StockOut_Modal";
 
-function InventoryTable() {
+
+
+
+
+function StockInOutTable() {
   const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -29,9 +33,31 @@ function InventoryTable() {
   const limit = 50;
   const [totalItems, setTotalItems] = useState(0);
 
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [isStockInOpen, setIsStockInOpen] = useState(false);
+const [isStockOutOpen, setIsStockOutOpen] = useState(false);
+const [selectedItem, setSelectedItem] = useState(null);
+
+
+  const handleOpenStockIn = (item) => {
+  setSelectedItem(item);
+  setIsStockInOpen(true);
+};
+
+const handleCloseStockIn = () => {
+  setIsStockInOpen(false);
+  setSelectedItem(null);
+};
+
+
+  const handleOpenStockOut = (item) => {
+  setSelectedItem(item);
+  setIsStockOutOpen(true);
+};
+
+const handleCloseStockOut = () => {
+  setIsStockOutOpen(false);
+  setSelectedItem(null);
+};
 
   const fetchInventory = async () => {
     try {
@@ -187,23 +213,18 @@ const handleDelete = async (inventory_id) => {
         autoComplete="off"
       />
 
-        <AddInventory_Modal
-      isOpen={isAddOpen}
-      onClose={() => setIsAddOpen(false)}
-      />
-
-      {isEditModalOpen && selectedItem && (
-        <EditInventory_Modal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        initialData={selectedItem}
+        <StockIn_Modal
+            isOpen={isStockInOpen}
+            onClose={handleCloseStockIn}
+            itemData={selectedItem}
         />
-      )}
 
+        <StockOut_Modal
+            isOpen={isStockOutOpen}
+            onClose={handleCloseStockOut}
+            itemData={selectedItem}
+        />
 
-      <button onClick={() => setIsAddOpen(true)} className="btn btn-primary">
-      + Add New
-      </button>
 
       <table
         border="1"
@@ -339,13 +360,9 @@ const handleDelete = async (inventory_id) => {
                   <div>TSV: {item.tsv}</div>
                 </td>
                 <td>
-
-                  
-                  <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
+                  <button onClick={() => handleOpenStockIn(item)}>Stock In</button>
                   <br />
-                  <button>History</button>
-                  <br />
-                  <button onClick={() => handleDelete(item.inventory_id)}>Delete</button>
+                  <button onClick={() => handleOpenStockOut(item)}>Stock Out</button>
                 </td>
               </tr>
             ))
@@ -393,4 +410,4 @@ const handleDelete = async (inventory_id) => {
   );
 }
 
-export default InventoryTable;
+export default StockInOutTable;

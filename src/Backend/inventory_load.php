@@ -28,6 +28,9 @@ $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
 $conditions = [];
 
+// Add condition to exclude deleted records (is_deleted != 0)
+$conditions[] = "is_deleted != 1";
+
 if ($search !== '') {
     $conditions[] = "(item_code LIKE '%$search%' 
                       OR desc_1 LIKE '%$search%' 

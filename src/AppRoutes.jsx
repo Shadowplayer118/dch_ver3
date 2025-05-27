@@ -3,6 +3,7 @@ import Login from "./Login";
 import StaffDashboard from "./Staff_Folder/StaffDashboard";
 import AdminDashboard from "./Admin_Folder/AdminDashboard";
 import RedirectDashboard from "./RedirectDashboard";
+import StockInOutTable from "./Admin_Folder/stockInOut";
 
 import InventoryTable from "./Admin_Folder/InventoryTable";
 function AppRoutes() {
@@ -19,6 +20,7 @@ function AppRoutes() {
         <Route path="/AdminDashboard" element={<AdminDashboard />} />
         <Route path="/StaffDashboard" element={<StaffDashboard />} />
         <Route path="/InventoryTable" element={<InventoryTable />} />
+        <Route path="/StockInOutTable" element={<StockInOutTable />} />
       </Routes>
     </Router>
   );
