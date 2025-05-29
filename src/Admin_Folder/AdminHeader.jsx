@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 function AdminHeader() {
   const navigate = useNavigate();
@@ -13,11 +13,12 @@ function AdminHeader() {
     <header>
       <h1>DCH Inventory</h1>
 
-      {/* Example link to the dashboard */}
+      {/* Use plain anchor tags to force full page refresh */}
       <nav>
-        <Link to="/AdminDashboard">Dashboard</Link>
-        <Link to="/InventoryTable">Inventory</Link>
-        <Link to="/StockInOutTable">Stock In/Out</Link>
+        <a href="/AdminDashboard">Dashboard</a>
+        <a href="/InventoryTable">Inventory</a>
+        <a href="/StockInOutTable">Stock In/Out</a>
+        <a href="/StockHistoryTable">Stock History</a>
       </nav>
 
       <button onClick={handleLogout}>

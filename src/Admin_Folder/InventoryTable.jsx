@@ -4,6 +4,7 @@ import AdminHeader from "./AdminHeader";
 
 import AddInventory_Modal from "./Modals_Folder/AddInventory_Modal";
 import EditInventory_Modal from "./Modals_Folder/EditInventory_Modal";
+import StockHistory_Modal from "./Modals_Folder/StockHistory_Modal";
 
 function InventoryTable() {
   const [inventory, setInventory] = useState([]);
@@ -26,55 +27,45 @@ function InventoryTable() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
   const [totalItems, setTotalItems] = useState(0);
 
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
+
   const [selectedItem, setSelectedItem] = useState(null);
 
-  const fetchInventory = async () => {
-    try {
-      const offset = (currentPage - 1) * limit;
+const fetchInventory = async () => {
+  try {
+    const offset = (currentPage - 1) * limit;
 
-      const params = new URLSearchParams({
-        ...filters,
-        limit,
-        offset,
-      }).toString();
+    const params = new URLSearchParams({
+      ...filters,
+      limit,
+      offset,
+    }).toString();
 
-      const response = await axios.get(
-        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
-      );
-      const result = response.data;
+    const response = await axios.get(
+      `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
+    );
+    const result = response.data;
 
-      if (!Array.isArray(result.data)) {
-        throw new Error("Invalid inventory data format");
-      }
-
-      const inventoryData = result.data;
-      setInventory(inventoryData);
-      setTotalItems(result.total || 0);
-
-      const getUniques = (key) =>
-        [...new Set(inventoryData.map((item) => item[key]).filter(Boolean))].sort();
-
-      const areaSet = new Set();
-      inventoryData.forEach((item) => {
-        if (item.wh_area) areaSet.add(item.wh_area);
-        if (item.store_area) areaSet.add(item.store_area);
-      });
-
-      const areas = Array.from(areaSet).sort();
-
-
-
-      setError(null);
-    } catch (err) {
-      console.error(err);
-      setError("Failed to load inventory data");
+    if (!Array.isArray(result.data)) {
+      throw new Error("Invalid inventory data format");
     }
-  };
+
+    setInventory(result.data);
+    setTotalItems(result.total || 0);
+
+    setError(null);
+  } catch (err) {
+    console.error(err);
+    setError("Failed to load inventory data");
+  }
+};
+
+
 
 const fetchUniqueFilters = async () => {
   try {
@@ -109,6 +100,11 @@ const fetchUniqueFilters = async () => {
   const handleEditClick = (item) => {
   setSelectedItem(item);
   setIsEditModalOpen(true);
+};
+
+const handleViewHistory = (item) => {
+  setSelectedItem(item);
+  setShowHistoryModal(true);
 };
 
   const totalPages = Math.ceil(totalItems / limit);
@@ -199,6 +195,12 @@ const handleDelete = async (inventory_id) => {
         initialData={selectedItem}
         />
       )}
+
+      <StockHistory_Modal
+        isOpen={showHistoryModal}
+        onClose={() => setShowHistoryModal(false)}
+        itemData={selectedItem}
+      />
 
 
       <button onClick={() => setIsAddOpen(true)} className="btn btn-primary">
@@ -343,7 +345,7 @@ const handleDelete = async (inventory_id) => {
                   
                   <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
                   <br />
-                  <button>History</button>
+                  <button onClick={() => handleViewHistory(item)}>History</button>
                   <br />
                   <button onClick={() => handleDelete(item.inventory_id)}>Delete</button>
                 </td>

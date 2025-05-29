@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include '../db.php';
 
-// Read active filters from query params
 function getParam($conn, $key) {
     return isset($_GET[$key]) ? trim($conn->real_escape_string($_GET[$key])) : '';
 }
@@ -23,65 +22,55 @@ $desc1 = getParam($conn, 'desc_1');
 $desc4 = getParam($conn, 'desc_4');
 $area = getParam($conn, 'area');
 
-// Prepare filters
-$allFilters = [
-    'brand' => $brand,
-    'category' => $category,
-    'desc_1' => $desc1,
-    'desc_4' => $desc4,
-    'area' => $area
-];
+$whereParts = ["is_deleted = 0"];
+
+if ($search !== '') {
+    $whereParts[] = "(item_code LIKE '%$search%' 
+        OR desc_1 LIKE '%$search%' 
+        OR desc_2 LIKE '%$search%' 
+        OR desc_3 LIKE '%$search%' 
+        OR CONCAT(desc_1, ' ', desc_2, ' ', desc_3) LIKE '%$search%')";
+}
+
+if ($brand !== '') $whereParts[] = "brand = '$brand'";
+if ($category !== '') $whereParts[] = "category = '$category'";
+if ($desc1 !== '') $whereParts[] = "desc_1 = '$desc1'";
+if ($desc4 !== '') $whereParts[] = "desc_4 = '$desc4'";
+if ($area !== '') $whereParts[] = "(wh_area = '$area' OR store_area = '$area')";
+
+$baseWhere = count($whereParts) ? "WHERE " . implode(" AND ", $whereParts) : '';
 
 $filters = [];
-$columns = ['brand', 'category', 'desc_1', 'desc_4', 'wh_area', 'store_area'];
 
-foreach ($columns as $col) {
-    $colFilter = [];
-
-    // Build conditions based on other filters (exclude current column)
-    if ($search !== '') {
-        $colFilter[] = "(item_code LIKE '%$search%' 
-                        OR desc_1 LIKE '%$search%' 
-                        OR desc_2 LIKE '%$search%' 
-                        OR desc_3 LIKE '%$search%' 
-                        OR CONCAT(desc_1, ' ', desc_2, ' ', desc_3) LIKE '%$search%')";
-    }
-
-    foreach ($allFilters as $key => $value) {
-        if ($value === '') continue;
-
-        if ($key === 'area' && $col !== 'wh_area' && $col !== 'store_area') {
-            $colFilter[] = "(wh_area = '$value' OR store_area = '$value')";
-        } elseif ($key !== $col) {
-            $colFilter[] = "$key = '$value'";
-        }
-    }
-
-    $extraCondition = count($colFilter) ? "WHERE " . implode(" AND ", $colFilter) . " AND `$col` IS NOT NULL AND `$col` <> ''"
-                                        : "WHERE `$col` IS NOT NULL AND `$col` <> ''";
-
-    $query = "SELECT DISTINCT `$col` FROM inventory $extraCondition ORDER BY `$col` ASC";
+// Pull distinct values for brand, category, desc_1, desc_4
+foreach (['brand', 'category', 'desc_1', 'desc_4'] as $col) {
+    $query = "SELECT DISTINCT `$col` FROM inventory $baseWhere AND `$col` IS NOT NULL AND `$col` <> '' ORDER BY `$col` ASC";
     $result = $conn->query($query);
-
     $values = [];
     if ($result) {
         while ($row = $result->fetch_assoc()) {
             $values[] = $row[$col];
         }
     }
+    $filters[$col] = $values;
+}
 
-    // Combine `wh_area` and `store_area` into `area`
-    if ($col === 'wh_area' || $col === 'store_area') {
-        $filters['area'] = array_values(array_unique(array_merge($filters['area'] ?? [], $values)));
-    } else {
-        $filters[$col] = $values;
+// Area: merge wh_area and store_area
+$areaValues = [];
+
+foreach (['wh_area', 'store_area'] as $col) {
+    $query = "SELECT DISTINCT `$col` FROM inventory $baseWhere AND `$col` IS NOT NULL AND `$col` <> '' ORDER BY `$col` ASC";
+    $result = $conn->query($query);
+    if ($result) {
+        while ($row = $result->fetch_assoc()) {
+            $val = $row[$col];
+            if ($val !== null && $val !== '') {
+                $areaValues[] = $val;
+            }
+        }
     }
 }
-
-// Guarantee area is always an array
-if (!isset($filters['area'])) {
-    $filters['area'] = [];
-}
+$filters['area'] = array_values(array_unique($areaValues));
 
 echo json_encode($filters);
 $conn->close();

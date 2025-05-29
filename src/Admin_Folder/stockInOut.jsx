@@ -5,10 +5,6 @@ import AdminHeader from "./AdminHeader";
 import StockIn_Modal from "./Modals_Folder/StockIn_Modal";
 import StockOut_Modal from "./Modals_Folder/StockOut_Modal";
 
-
-
-
-
 function StockInOutTable() {
   const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
@@ -30,13 +26,12 @@ function StockInOutTable() {
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
-  const limit = 50;
+  const limit = 10;
   const [totalItems, setTotalItems] = useState(0);
 
   const [isStockInOpen, setIsStockInOpen] = useState(false);
 const [isStockOutOpen, setIsStockOutOpen] = useState(false);
 const [selectedItem, setSelectedItem] = useState(null);
-
 
   const handleOpenStockIn = (item) => {
   setSelectedItem(item);
@@ -47,7 +42,6 @@ const handleCloseStockIn = () => {
   setIsStockInOpen(false);
   setSelectedItem(null);
 };
-
 
   const handleOpenStockOut = (item) => {
   setSelectedItem(item);
@@ -92,8 +86,6 @@ const handleCloseStockOut = () => {
       });
 
       const areas = Array.from(areaSet).sort();
-
-
 
       setError(null);
     } catch (err) {
@@ -191,15 +183,9 @@ const handleDelete = async (inventory_id) => {
   }
 };
 
-
-
-  
-
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
-      <AdminHeader />
-
- 
+      <AdminHeader /> 
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 

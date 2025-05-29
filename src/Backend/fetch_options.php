@@ -13,7 +13,7 @@ include '../db.php';
 
 function getDistinct($conn, $column) {
     $values = [];
-    $query = "SELECT DISTINCT `$column` FROM inventory WHERE `$column` IS NOT NULL AND `$column` != '' ORDER BY `$column` ASC";
+    $query = "SELECT DISTINCT `$column` FROM inventory WHERE `$column` IS NOT NULL AND `$column` != '' AND is_deleted != 0 ORDER BY `$column` ASC ";
     $result = $conn->query($query);
 
     if ($result) {
