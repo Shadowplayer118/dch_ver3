@@ -16,39 +16,63 @@ function getPost($conn, $key) {
     return isset($_POST[$key]) ? trim($conn->real_escape_string($_POST[$key])) : '';
 }
 
-// Required identifier for update
-$inventory_id = getPost($conn, 'inventory_id'); // You should send the inventory id for the item to update
-
-$item_code     = getPost($conn, 'item_code');
-$brand         = getPost($conn, 'brand');
-$category      = getPost($conn, 'category');
-$desc_1        = getPost($conn, 'desc_1');
-$desc_2        = getPost($conn, 'desc_2');
-$desc_3        = getPost($conn, 'desc_3');
-$desc_4        = getPost($conn, 'desc_4');
-$retail_price  = (float)getPost($conn, 'retail_price');
-$fixed_price   = (float)getPost($conn, 'fixed_price');
-$wh_units      = (int)getPost($conn, 'wh_units');
-$store_units   = (int)getPost($conn, 'store_units');
-$wh_area       = getPost($conn, 'wh_area');
-$store_area    = getPost($conn, 'store_area');
-$wh_thresh     = getPost($conn, 'wh_thresh');
-$store_thresh  = getPost($conn, 'store_thresh');
-$username      = getPost($conn, 'username');
-$user_type     = getPost($conn, 'user_type');
+// Required fields
+$inventory_id   = getPost($conn, 'inventory_id');
+$item_code      = getPost($conn, 'item_code');
+$brand          = getPost($conn, 'brand');
+$category       = getPost($conn, 'category');
+$desc_1         = getPost($conn, 'desc_1');
+$desc_2         = getPost($conn, 'desc_2');
+$desc_3         = getPost($conn, 'desc_3');
+$desc_4         = getPost($conn, 'desc_4');
+$units          = (int)getPost($conn, 'units');
+$fixed_price    = (float)getPost($conn, 'fixed_price');
+$retail_price   = (float)getPost($conn, 'retail_price');
+$thresh_hold    = (int)getPost($conn, 'thresh_hold');
+$area           = getPost($conn, 'area');
+$username       = getPost($conn, 'username');
+$user_type      = getPost($conn, 'user_type');
 
 if (empty($inventory_id)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Missing inventory item id for update.']);
+    echo json_encode(['error' => 'Missing inventory ID']);
     exit();
 }
 
-$tsv = $retail_price * ($wh_units + $store_units);
+$response = [];
+$tsv = $retail_price * $units;
 
-// Handle image upload (optional)
+// Area update
+if (!empty($area)) {
+    $stmt = $conn->prepare("UPDATE inventory SET area = ?, last_updated = NOW() WHERE inventory_id = ?");
+    $stmt->bind_param('si', $area, $inventory_id);
+    if ($stmt->execute()) {
+        $response[] = 'Area updated';
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to update area: ' . $stmt->error]);
+        exit();
+    }
+    $stmt->close();
+}
+
+// Units update
+if ($units !== '') {
+    $stmt = $conn->prepare("UPDATE inventory SET units = ?, last_updated = NOW() WHERE inventory_id = ?");
+    $stmt->bind_param('di', $units, $inventory_id); // Corrected 'ii'
+    if ($stmt->execute()) {
+        $response[] = 'Units updated';
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to update units: ' . $stmt->error]);
+        exit();
+    }
+    $stmt->close();
+}
+
+// Image upload
 $img = null;
 $upload_dir = 'Images/';
-
 if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
     $tmp_name = $_FILES['img']['tmp_name'];
     $original_name = basename($_FILES['img']['name']);
@@ -59,57 +83,44 @@ if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
     move_uploaded_file($tmp_name, $upload_dir . $img);
 }
 
-// Prepare SQL, update image only if uploaded
+// Inventory field update based on item_code
 if ($img !== null) {
     $sql = "UPDATE inventory SET
         item_code = ?, brand = ?, category = ?, desc_1 = ?, desc_2 = ?, desc_3 = ?, desc_4 = ?,
-        retail_price = ?, fixed_price = ?, wh_units = ?, store_units = ?,
-        wh_area = ?, store_area = ?, wh_thresh = ?, store_thresh = ?, img = ?,
-        tsv = ?, last_updated = NOW()
-        WHERE inventory_id = ?";
+        fixed_price = ?, retail_price = ?, thresh_hold = ?,
+        img = ?, tsv = ?, last_updated = NOW()
+        WHERE item_code = ?";
     $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database prepare failed: ' . $conn->error]);
-        exit();
-    }
     $stmt->bind_param(
-        'ssssssssiiissssssi',
+        'sssssssdddsss',
         $item_code, $brand, $category, $desc_1, $desc_2, $desc_3, $desc_4,
-        $retail_price, $fixed_price, $wh_units, $store_units,
-        $wh_area, $store_area, $wh_thresh, $store_thresh, $img,
-        $tsv, $inventory_id
+        $fixed_price, $retail_price, $thresh_hold,
+        $img, $tsv, $item_code
     );
 } else {
     $sql = "UPDATE inventory SET
         item_code = ?, brand = ?, category = ?, desc_1 = ?, desc_2 = ?, desc_3 = ?, desc_4 = ?,
-        retail_price = ?, fixed_price = ?, wh_units = ?, store_units = ?,
-        wh_area = ?, store_area = ?, wh_thresh = ?, store_thresh = ?,
+        fixed_price = ?, retail_price = ?, thresh_hold = ?,
         tsv = ?, last_updated = NOW()
-        WHERE inventory_id = ?";
+        WHERE item_code = ?";
     $stmt = $conn->prepare($sql);
-    if (!$stmt) {
-        http_response_code(500);
-        echo json_encode(['error' => 'Database prepare failed: ' . $conn->error]);
-        exit();
-    }
     $stmt->bind_param(
-        'ssssssssiiisssssi',
+        'sssssssdddss',
         $item_code, $brand, $category, $desc_1, $desc_2, $desc_3, $desc_4,
-        $retail_price, $fixed_price, $wh_units, $store_units,
-        $wh_area, $store_area, $wh_thresh, $store_thresh,
-        $tsv, $inventory_id
+        $fixed_price, $retail_price, $thresh_hold,
+        $tsv, $item_code
     );
 }
 
 if ($stmt->execute()) {
-    $act_performed = "UPDATE inventory SET ... WHERE inventory_id = $inventory_id";
+    $response[] = 'Inventory details updated';
 
+    $act_performed = "Edited inventory item item code $item_code";
     $log_sql = "INSERT INTO activity_report (
         activity_type, table_performed, act_performed,
         date_performed, time_performed, is_deleted, username, user_type
     ) VALUES (?, ?, ?, NOW(), NOW(), 0, ?, ?)";
-
+    
     $log_stmt = $conn->prepare($log_sql);
     if ($log_stmt) {
         $activity_type = "UPDATE";
@@ -119,10 +130,10 @@ if ($stmt->execute()) {
         $log_stmt->close();
     }
 
-    echo json_encode(['success' => true, 'message' => 'Item updated successfully.']);
+    echo json_encode(['success' => true, 'message' => implode(', ', $response)]);
 } else {
     http_response_code(500);
-    echo json_encode(['error' => 'Failed to update item: ' . $stmt->error]);
+    echo json_encode(['error' => 'Update failed: ' . $stmt->error]);
 }
 
 $stmt->close();

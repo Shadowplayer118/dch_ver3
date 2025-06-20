@@ -11,7 +11,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 include '../db.php';
 
-// Helper to get trimmed GET param or empty string
 function getParam($conn, $key) {
     return isset($_GET[$key]) ? trim($conn->real_escape_string($_GET[$key])) : '';
 }
@@ -22,13 +21,14 @@ $category = getParam($conn, 'category');
 $desc1 = getParam($conn, 'desc_1');
 $desc4 = getParam($conn, 'desc_4');
 $area = getParam($conn, 'area');
+$location = strtoupper(getParam($conn, 'location')); // Normalize to uppercase for comparison
 
 $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 500;
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
 $conditions = [];
 
-// Add condition to exclude deleted records (is_deleted != 0)
+// Exclude deleted
 $conditions[] = "is_deleted != 1";
 
 if ($search !== '') {
@@ -59,13 +59,21 @@ if ($desc4 !== '') {
 }
 
 if ($area !== '') {
-    // More explicit condition
-    $conditions[] = "(wh_area = '$area' OR store_area = '$area')";
+    $conditions[] = "(area = '$area')";
 }
+
+// Add condition based on location, unless it's ALL or empty
+// Add condition based on location
+if ($location === 'STORE') {
+    $conditions[] = "location = 'STORE'";
+} elseif ($location === 'WAREHOUSE') {
+    $conditions[] = "location = 'WAREHOUSE'";
+}
+
 
 $whereClause = count($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
-// Total count for pagination
+// Total count
 $totalQuery = "SELECT COUNT(*) AS total FROM inventory $whereClause";
 $totalResult = $conn->query($totalQuery);
 $total = 0;
@@ -74,7 +82,7 @@ if ($totalResult && $row = $totalResult->fetch_assoc()) {
     $total = intval($row['total']);
 }
 
-// Main data query with LIMIT + OFFSET
+// Main data
 $sql = "SELECT * FROM inventory $whereClause ORDER BY inventory_id DESC LIMIT $limit OFFSET $offset";
 $result = $conn->query($sql);
 

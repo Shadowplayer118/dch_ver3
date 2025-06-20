@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
+const StockIn_Modal = ({ isOpen, onClose, itemData }) => {
   const [formData, setFormData] = useState({ ...itemData });
-  const [location, setLocation] = useState('warehouse');
   const [quantity, setQuantity] = useState('');
+  const [reqnumber, setReqnumber] = useState('');
   const [transactionDate, setTransactionDate] = useState('');
 
   useEffect(() => {
     if (!isOpen) return;
     setFormData({ ...itemData });
     setQuantity('');
-    setLocation('warehouse');
-    setTransactionDate(new Date().toISOString().split('T')[0]); // Default to today
+    setReqnumber('');
+    setTransactionDate(new Date().toISOString().split('T')[0]);
   }, [isOpen, itemData]);
 
   if (!isOpen) return null;
@@ -20,20 +20,14 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Calculate updated units by subtracting quantity from the correct location
-    const updatedUnits =
-      location === 'warehouse'
-        ? (parseInt(formData.wh_units || 0) - parseInt(quantity))
-        : (parseInt(formData.store_units || 0) - parseInt(quantity));
-
-    // Prevent negative stock
-
+    const updatedUnits = parseInt(formData.units || 0) + parseInt(quantity || 0);
 
     const formDataToSend = new FormData();
     formDataToSend.append('item_code', formData.item_code);
     formDataToSend.append('inventory_id', formData.inventory_id);
-    formDataToSend.append('location', location);
-    formDataToSend.append('quantity', quantity); // string is fine
+    formDataToSend.append('location', formData.location);
+    formDataToSend.append('requisition_number', reqnumber);
+    formDataToSend.append('quantity', quantity);
     formDataToSend.append('updated_units', updatedUnits);
     formDataToSend.append('transaction_date', transactionDate);
     formDataToSend.append('username', localStorage.getItem('username'));
@@ -41,7 +35,7 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost/dch_ver3/src/Backend/stock_out.php',
+        'http://localhost/dch_ver3/src/Backend/stock_in.php',
         formDataToSend,
         {
           headers: {
@@ -49,37 +43,33 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
           },
         }
       );
-      console.log('Stock-out success:', response.data);
+      console.log('Stock-in success:', response.data);
       onClose();
     } catch (err) {
-      console.error('Failed to stock out item:', err.response?.data || err);
+      console.error('Failed to stock in item:', err.response?.data || err);
     }
   };
 
   return (
     <div className="modal-backdrop">
       <div className="modal-content">
-        <h2>Stock Out Item</h2>
+        <h2>Stock In Item</h2>
         <div className="item-details">
           <p><strong>Item Code:</strong> {formData.item_code}</p>
           <p><strong>Name:</strong> {formData.desc_1}</p>
           <p><strong>Brand:</strong> {formData.brand}</p>
           <p><strong>Category:</strong> {formData.category}</p>
-          <p><strong>Current Warehouse Units:</strong> {formData.wh_units}</p>
-          <p><strong>Current Store Units:</strong> {formData.store_units}</p>
+          <p><strong>Current Units:</strong> {formData.units}</p>
         </div>
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Location</label>
-            <select value={location} onChange={(e) => setLocation(e.target.value)}>
-              <option value="warehouse">Warehouse</option>
-              <option value="store">Store</option>
-            </select>
+            <input type="text" value={formData.location || ''} readOnly />
           </div>
 
           <div className="form-group">
-            <label>Quantity to Stock Out</label>
+            <label>Quantity to Stock In</label>
             <input
               type="number"
               min="1"
@@ -93,9 +83,17 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
             <label>Date of Transaction</label>
             <input
               type="date"
-              value={transactionDate}
               onChange={(e) => setTransactionDate(e.target.value)}
               required
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Requisition Number</label>
+            <input
+              type="text"
+              value={reqnumber}
+              onChange={(e) => setReqnumber(e.target.value)}
             />
           </div>
 
@@ -109,4 +107,4 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
   );
 };
 
-export default StockOut_Modal;
+export default StockIn_Modal;

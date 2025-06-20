@@ -20,11 +20,11 @@ if (!$input) {
     exit();
 }
 
-$inventory_id = isset($input['inventory_id']) ? intval($input['inventory_id']) : 0;
+$item_code = isset($input['item_code']) ? $conn->real_escape_string(trim($input['item_code'])) : '';
 $username = isset($input['username']) ? $conn->real_escape_string(trim($input['username'])) : '';
 $user_type = isset($input['user_type']) ? $conn->real_escape_string(trim($input['user_type'])) : '';
 
-if (!$inventory_id || !$username || !$user_type) {
+if (!$item_code || !$username || !$user_type) {
     http_response_code(400);
     echo json_encode(['success' => false, 'message' => 'Missing required parameters']);
     exit();
@@ -35,18 +35,18 @@ $conn->begin_transaction();
 
 try {
     // Update inventory: soft delete
-    $updateSql = "UPDATE inventory SET is_deleted = 1 WHERE inventory_id = ?";
+    $updateSql = "UPDATE inventory SET is_deleted = 1 WHERE item_code = ?";
     $stmt = $conn->prepare($updateSql);
     if (!$stmt) {
         throw new Exception("Failed to prepare inventory update");
     }
-    $stmt->bind_param('i', $inventory_id);
+    $stmt->bind_param('s', $item_code);
     if (!$stmt->execute()) {
         throw new Exception("Failed to update inventory item");
     }
     date_default_timezone_set('Asia/Manila');
     // Log activity
-    $activity = "Deleted inventory item ID $inventory_id";
+    $activity = "Deleted inventory item ID $item_code";
     $date_performed = date('Y-m-d');
     $activity_type = "DELETE";
     $time_performed = date('H:i:s'); 

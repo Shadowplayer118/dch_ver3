@@ -17,7 +17,7 @@ function getParam($conn, $key) {
 
 $search = getParam($conn, 'search');
 $trans_type = getParam($conn, 'trans_type');
-$trans_from = getParam($conn, 'trans_from');
+$location = getParam($conn, 'location');
 $brand = getParam($conn, 'brand');
 $category = getParam($conn, 'category');
 
@@ -37,8 +37,8 @@ if ($trans_type !== '') {
     $conditions[] = "s.trans_type = '$trans_type'";
 }
 
-if ($trans_from !== '') {
-    $conditions[] = "s.trans_from = '$trans_from'";
+if ($location !== '' && strtoupper($location) !== 'ALL') {
+    $conditions[] = "s.location = '$location'";
 }
 
 if ($brand !== '') {
@@ -55,7 +55,9 @@ $whereClause = count($conditions) ? "WHERE " . implode(" AND ", $conditions) : "
 $totalQuery = "
     SELECT COUNT(*) AS total 
     FROM stock_history s
-    LEFT JOIN inventory i ON s.inventory_id = i.inventory_id
+    LEFT JOIN (
+        SELECT * FROM inventory GROUP BY item_code
+    ) i ON s.item_code = i.item_code
     $whereClause
 ";
 $totalResult = $conn->query($totalQuery);
@@ -72,11 +74,14 @@ $sql = "
         i.brand,
         i.category,
         s.trans_type,
+        s.username,
         s.trans_units,
-        s.trans_from,
+        s.location,
         s.trans_date
     FROM stock_history s
-    LEFT JOIN inventory i ON s.inventory_id = i.inventory_id
+    LEFT JOIN (
+        SELECT * FROM inventory GROUP BY item_code
+    ) i ON s.item_code = i.item_code
     $whereClause
     ORDER BY s.trans_date DESC
     LIMIT $limit OFFSET $offset

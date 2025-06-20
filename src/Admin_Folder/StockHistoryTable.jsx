@@ -6,11 +6,30 @@ import * as XLSX from 'xlsx';
 const StockHistoryTable = () => {
   const [stockHistory, setStockHistory] = useState([]);
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState({ brand: '', category: '', trans_type: '', trans_from: '' });
+const [filters, setFilters] = useState(() => ({
+  brand: '',
+  category: '',
+  trans_type: '',
+  location: localStorage.getItem('selectedLocation') || 'ALL',
+}));
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
 
   const [currentPage, setCurrentPage] = useState(1);
   const rowsPerPage = 10;
+
+  const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
+  
+  const [selectedLocation, setSelectedLocation] = useState(() => {
+    return localStorage.getItem("selectedLocation") || "ALL";
+  });
+  
+  const handleLocationChange = () => {
+    const currentIndex = locationOptions.indexOf(selectedLocation);
+    const nextIndex = (currentIndex + 1) % locationOptions.length;
+    const newLocation = locationOptions[nextIndex];
+    setSelectedLocation(newLocation);
+    localStorage.setItem("selectedLocation", newLocation);
+  };
 
   useEffect(() => {
     fetchStockHistory();
@@ -60,7 +79,7 @@ const StockHistoryTable = () => {
                 <td>${entry.category}</td>
                 <td>${entry.trans_type}</td>
                 <td>${entry.trans_units}</td>
-                <td>${entry.trans_from}</td>
+                <td>${entry.location}</td>
                 <td>${entry.trans_date}</td>
               </tr>`).join('')}
           </tbody>
@@ -91,7 +110,7 @@ const StockHistoryTable = () => {
       const matchesBrand = !filters.brand || entry.brand === filters.brand;
       const matchesCategory = !filters.category || entry.category === filters.category;
       const matchesType = !filters.trans_type || entry.trans_type === filters.trans_type;
-      const matchesFrom = !filters.trans_from || entry.trans_from === filters.trans_from;
+      const matchesFrom = !filters.location || entry.location === filters.location;
       const matchesDate =
         (!dateRange.start || new Date(entry.trans_date) >= new Date(dateRange.start)) &&
         (!dateRange.end || new Date(entry.trans_date) <= new Date(dateRange.end));
@@ -168,11 +187,11 @@ const StockHistoryTable = () => {
         </select>
         <select
           className="border p-2 rounded"
-          value={filters.trans_from}
-          onChange={e => setFilters({ ...filters, trans_from: e.target.value })}
+          value={filters.location}
+          onChange={e => setFilters({ ...filters, location: e.target.value })}
         >
           <option value="">All Sources</option>
-          {[...new Set(stockHistory.map(e => e.trans_from))].map((f, i) => (
+          {[...new Set(stockHistory.map(e => e.location))].map((f, i) => (
             <option key={i} value={f}>{f}</option>
           ))}
         </select>
@@ -202,6 +221,8 @@ const StockHistoryTable = () => {
             <th>Units</th>
             <th>From</th>
             <th>Date</th>
+            <th>Encoder</th>
+
           </tr>
         </thead>
         <tbody>
@@ -218,8 +239,9 @@ const StockHistoryTable = () => {
                 <td>{entry.category}</td>
                 <td>{entry.trans_type}</td>
                 <td>{entry.trans_units}</td>
-                <td>{entry.trans_from}</td>
+                <td>{entry.location}</td>
                 <td>{entry.trans_date}</td>
+                <td>{entry.username}</td>
               </tr>
             ))
           )}

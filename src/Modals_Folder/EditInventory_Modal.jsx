@@ -13,8 +13,7 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
   const [options, setOptions] = useState({
     brand: [],
     category: [],
-    wh_area: [],
-    store_area: []
+    area: []
   });
 
   useEffect(() => {
@@ -68,7 +67,6 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
         data.append(key, value);
       });
 
-      // Add username and user_type from localStorage
       const username = localStorage.getItem("username");
       const user_type = localStorage.getItem("user_type");
       if (username) data.append("username", username);
@@ -79,9 +77,7 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
       }
 
       await axios.post('http://localhost/dch_ver3/src/Backend/edit_inventory.php', data, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
 
       onClose();
@@ -95,37 +91,32 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
       <div className="modal-content">
         <h2>Edit Item</h2>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
+          {/* Hidden item code field */}
+          <input name="item_code" value={formData.item_code} readOnly />
+
+          {/* Descriptions */}
           {[
-            ['Item Code', 'item_code'],
             ['Description 1 (Name)', 'desc_1'],
-            ['Description 2 (Item Code)', 'desc_2'],
-            ['Description 3 (Measurement)', 'desc_3'],
-            ['Description 4 (Car Type)', 'desc_4'],
-            ['Warehouse Units', 'wh_units', 'number'],
-            ['Store Units', 'store_units', 'number'],
-            ['Fixed Price', 'fixed_price', 'number'],
-            ['Retail Price', 'retail_price', 'number'],
-            ['Warehouse Threshold', 'wh_thresh', 'number'],
-            ['Store Threshold', 'store_thresh', 'number']
-          ].map(([label, name, type = 'text']) => (
+            ['Description 2 (Measurement)', 'desc_2'],
+            ['Description 3 (Item Code)', 'desc_3'],
+            ['Description 4 (Other Details)', 'desc_4']
+          ].map(([label, name]) => (
             <div className="form-group" key={name}>
               <label>{label}</label>
               <input
-                type={type}
+                type="text"
                 name={name}
                 value={formData[name] || ''}
                 onChange={handleChange}
                 autoComplete="off"
-                step={type === 'number' ? '0.01' : undefined}
               />
             </div>
           ))}
 
+          {/* Brand, Category with Datalist */}
           {[
             ['Brand', 'brand', 'brand-list', options.brand],
-            ['Category', 'category', 'category-list', options.category],
-            ['Warehouse Area', 'wh_area', 'wh-area-list', options.wh_area],
-            ['Store Area', 'store_area', 'store-area-list', options.store_area],
+            ['Category', 'category', 'category-list', options.category]
           ].map(([label, name, listId, list]) => (
             <div className="form-group" key={name}>
               <label>{label}</label>
@@ -145,6 +136,73 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             </div>
           ))}
 
+          {/* Units, Fixed and Retail Price */}
+          {[
+            ['Store Units', 'units'],
+            ['Fixed Price', 'fixed_price'],
+            ['Retail Price', 'retail_price']
+          ].map(([label, name]) => (
+            <div className="form-group" key={name}>
+              <label>{label}</label>
+              <input
+                type="number"
+                name={name}
+                value={formData[name] || ''}
+                onChange={handleChange}
+                step="0.01"
+                autoComplete="off"
+              />
+            </div>
+          ))}
+
+          {/* Location Dropdown */}
+
+
+          <div className="form-group">
+            <label>Location</label>
+            <input type="text" value={formData.location} readOnly/>
+          </div>
+
+          {/* Area with location-based filtering */}
+          <div className="form-group">
+            <label>Store Area</label>
+            <input
+              type="text"
+              name="area"
+              list="area-list"
+              value={formData.area || ''}
+              onChange={handleChange}
+              disabled={!formData.location}
+              autoComplete="off"
+            />
+            <datalist id="area-list">
+              {options.area
+                .filter(area =>
+                  formData.location === "STORE"
+                    ? area.toUpperCase().includes("STORE")
+                    : formData.location === "WAREHOUSE"
+                      ? !area.toUpperCase().includes("STORE")
+                      : false
+                )
+                .map((item, idx) => (
+                  <option key={idx} value={item} />
+                ))}
+            </datalist>
+          </div>
+
+          {/* Threshold */}
+          <div className="form-group">
+            <label>Thresh Hold</label>
+            <input
+              type="number"
+              name="thresh_hold"
+              value={formData.thresh_hold || ''}
+              onChange={handleChange}
+              autoComplete="off"
+            />
+          </div>
+
+          {/* Image Upload */}
           <div className="form-group">
             <label>Item Image</label>
             <input type="file" accept="image/*" onChange={handleImageChange} autoComplete="off" />
@@ -152,16 +210,12 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
               <img
                 src={previewImage}
                 alt="Preview"
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  objectFit: 'cover',
-                  border: '1px solid #ccc'
-                }}
+                style={{ width: '120px', height: '120px', objectFit: 'cover', border: '1px solid #ccc' }}
               />
             </div>
           </div>
 
+          {/* Buttons */}
           <div className="modal-actions">
             <button type="submit">Update</button>
             <button type="button" onClick={onClose} className="cancel-btn">Cancel</button>

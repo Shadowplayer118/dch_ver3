@@ -23,7 +23,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
         const response = await axios.get(
           'http://localhost/dch_ver3/src/Backend/fetch_stockHistory.php',
           {
-            params: { inventory_id: itemData.inventory_id },
+            params: { item_code: itemData.item_code },
           }
         );
         setHistory(response.data);
@@ -54,7 +54,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
     }
 
     if (filterFrom) {
-      filtered = filtered.filter(h => h.trans_from === filterFrom);
+      filtered = filtered.filter(h => h.location === filterFrom);
     }
 
     setFilteredHistory(filtered);
@@ -100,7 +100,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
       <tr>
         <td>${record.trans_type}</td>
         <td>${record.trans_units}</td>
-        <td>${record.trans_from}</td>
+        <td>${record.location}</td>
         <td>${record.trans_date}</td>
       </tr>`
   ).join('');
@@ -210,6 +210,8 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
             From:
             <select value={filterFrom} onChange={e => setFilterFrom(e.target.value)}>
               <option value="">All</option>
+              <option value="WAREHOUSE">WAREHOUSE</option>
+              <option value="STORE">STORE</option>
               {[...new Set(history.map(h => h.trans_from))].map((source, idx) => (
                 <option key={idx} value={source}>{source}</option>
               ))}
@@ -237,7 +239,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
                 <tr key={index}>
                   <td>{record.trans_type}</td>
                   <td>{record.trans_units}</td>
-                  <td>{record.trans_from}</td>
+                  <td>{record.location}</td>
                   <td>{record.trans_date}</td>
                 </tr>
               ))

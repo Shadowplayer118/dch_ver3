@@ -36,7 +36,7 @@ if ($brand !== '') $whereParts[] = "brand = '$brand'";
 if ($category !== '') $whereParts[] = "category = '$category'";
 if ($desc1 !== '') $whereParts[] = "desc_1 = '$desc1'";
 if ($desc4 !== '') $whereParts[] = "desc_4 = '$desc4'";
-if ($area !== '') $whereParts[] = "(wh_area = '$area' OR store_area = '$area')";
+if ($area !== '') $whereParts[] = "area = '$area'";
 
 $baseWhere = count($whereParts) ? "WHERE " . implode(" AND ", $whereParts) : '';
 
@@ -58,7 +58,7 @@ foreach (['brand', 'category', 'desc_1', 'desc_4'] as $col) {
 // Area: merge wh_area and store_area
 $areaValues = [];
 
-foreach (['wh_area', 'store_area'] as $col) {
+foreach (['area'] as $col) {
     $query = "SELECT DISTINCT `$col` FROM inventory $baseWhere AND `$col` IS NOT NULL AND `$col` <> '' ORDER BY `$col` ASC";
     $result = $conn->query($query);
     if ($result) {

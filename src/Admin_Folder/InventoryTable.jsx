@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminHeader from "./AdminHeader";
 
-import AddInventory_Modal from "./Modals_Folder/AddInventory_Modal";
-import EditInventory_Modal from "./Modals_Folder/EditInventory_Modal";
-import StockHistory_Modal from "./Modals_Folder/StockHistory_Modal";
+import AddInventory_Modal from "../Modals_Folder/AddInventory_Modal";
+import EditInventory_Modal from "../Modals_Folder/EditInventory_Modal";
+import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
+
 
 function InventoryTable() {
   const [inventory, setInventory] = useState([]);
@@ -34,17 +35,35 @@ function InventoryTable() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-  const [selectedItem, setSelectedItem] = useState(null);
+    const [selectedItem, setSelectedItem] = useState(null);
+
+
+const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
+
+const [selectedLocation, setSelectedLocation] = useState(() => {
+  return localStorage.getItem("selectedLocation") || "ALL";
+});
+
+const handleLocationChange = () => {
+  const currentIndex = locationOptions.indexOf(selectedLocation);
+  const nextIndex = (currentIndex + 1) % locationOptions.length;
+  const newLocation = locationOptions[nextIndex];
+  setSelectedLocation(newLocation);
+  localStorage.setItem("selectedLocation", newLocation);
+};
+
 
 const fetchInventory = async () => {
   try {
     const offset = (currentPage - 1) * limit;
 
-    const params = new URLSearchParams({
-      ...filters,
-      limit,
-      offset,
-    }).toString();
+const params = new URLSearchParams({
+  ...filters,
+  location: selectedLocation, // ✅ Pass it here!
+  limit,
+  offset,
+}).toString();
+
 
     const response = await axios.get(
       `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
@@ -85,11 +104,10 @@ const fetchUniqueFilters = async () => {
 };
 
 
-  useEffect(() => {
-    fetchInventory();
-    fetchUniqueFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, currentPage, inventory]);
+useEffect(() => {
+  fetchInventory();
+  fetchUniqueFilters();
+}, [filters, currentPage, selectedLocation, inventory]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -122,7 +140,7 @@ const handleViewHistory = (item) => {
     setCurrentPage(Number(e.target.value));
   };
 
-const handleDelete = async (inventory_id) => {
+const handleDelete = async (item_code) => {
   const username = localStorage.getItem("username");
   const user_type = localStorage.getItem("user_type");
 
@@ -139,7 +157,7 @@ const handleDelete = async (inventory_id) => {
     const response = await axios.post(
       'http://localhost/dch_ver3/src/Backend/delete_inventory.php',
       {
-        inventory_id,
+        item_code,
         username,
         user_type
       },
@@ -162,14 +180,15 @@ const handleDelete = async (inventory_id) => {
 };
 
 
-
-  
-
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
       <AdminHeader />
 
- 
+      <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+        <button onClick={handleLocationChange} className="btn btn-secondary">
+          Location: {selectedLocation} (Click to cycle)
+        </button>
+      </div>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -331,10 +350,13 @@ const handleDelete = async (inventory_id) => {
                 <td>{item.brand}</td>
                 <td>{item.category}</td>
                 <td>
-                  <div>WH: {item.wh_units}</div>
-                  <div>Store: {item.store_units}</div>
+                  <div>{item.units}</div>
+ 
                 </td>
-                <td>{item.wh_area || item.store_area}</td>
+                <td>
+                  <div>{item.location}</div>
+                  <div>{item.area}</div>
+                </td>
                 <td>
                   <div>Fixed: ${item.fixed_price}</div>
                   <div>Retail: ${item.retail_price}</div>
@@ -347,7 +369,7 @@ const handleDelete = async (inventory_id) => {
                   <br />
                   <button onClick={() => handleViewHistory(item)}>History</button>
                   <br />
-                  <button onClick={() => handleDelete(item.inventory_id)}>Delete</button>
+                  <button onClick={() => handleDelete(item.item_code)}>Delete</button>
                 </td>
               </tr>
             ))

@@ -2,8 +2,8 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import AdminHeader from "./AdminHeader";
 
-import StockIn_Modal from "./Modals_Folder/StockIn_Modal";
-import StockOut_Modal from "./Modals_Folder/StockOut_Modal";
+import StockIn_Modal from "../Modals_Folder/StockIn_Modal";
+import StockOut_Modal from "../Modals_Folder/StockOut_Modal";
 
 function StockInOutTable() {
   const [inventory, setInventory] = useState([]);
@@ -33,6 +33,20 @@ function StockInOutTable() {
 const [isStockOutOpen, setIsStockOutOpen] = useState(false);
 const [selectedItem, setSelectedItem] = useState(null);
 
+const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
+
+const [selectedLocation, setSelectedLocation] = useState(() => {
+  return localStorage.getItem("selectedLocation") || "ALL";
+});
+
+const handleLocationChange = () => {
+  const currentIndex = locationOptions.indexOf(selectedLocation);
+  const nextIndex = (currentIndex + 1) % locationOptions.length;
+  const newLocation = locationOptions[nextIndex];
+  setSelectedLocation(newLocation);
+  localStorage.setItem("selectedLocation", newLocation);
+};
+
   const handleOpenStockIn = (item) => {
   setSelectedItem(item);
   setIsStockInOpen(true);
@@ -59,6 +73,7 @@ const handleCloseStockOut = () => {
 
       const params = new URLSearchParams({
         ...filters,
+          location: selectedLocation, // ✅ Pass it here!
         limit,
         offset,
       }).toString();
@@ -187,6 +202,12 @@ const handleDelete = async (inventory_id) => {
     <div style={{ overflowX: "auto", padding: "1rem" }}>
       <AdminHeader /> 
 
+            <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+        <button onClick={handleLocationChange} className="btn btn-secondary">
+          Location: {selectedLocation} (Click to cycle)
+        </button>
+      </div>
+
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       <input
@@ -210,7 +231,6 @@ const handleDelete = async (inventory_id) => {
             onClose={handleCloseStockOut}
             itemData={selectedItem}
         />
-
 
       <table
         border="1"
@@ -336,10 +356,9 @@ const handleDelete = async (inventory_id) => {
                 <td>{item.brand}</td>
                 <td>{item.category}</td>
                 <td>
-                  <div>WH: {item.wh_units}</div>
-                  <div>Store: {item.store_units}</div>
+                  <div>{item.units}</div>
                 </td>
-                <td>{item.wh_area || item.store_area}</td>
+                <td>{item.area}</td>
                 <td>
                   <div>Fixed: ${item.fixed_price}</div>
                   <div>Retail: ${item.retail_price}</div>

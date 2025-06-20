@@ -13,7 +13,7 @@ include '../db.php';
 
 function getDistinct($conn, $column) {
     $values = [];
-    $query = "SELECT DISTINCT `$column` FROM inventory WHERE `$column` IS NOT NULL AND `$column` != '' AND is_deleted != 0 ORDER BY `$column` ASC ";
+    $query = "SELECT DISTINCT `$column` FROM inventory WHERE `$column` IS NOT NULL AND `$column` != '' AND is_deleted != 1 ORDER BY `$column` ASC ";
     $result = $conn->query($query);
 
     if ($result) {
@@ -21,7 +21,6 @@ function getDistinct($conn, $column) {
             $values[] = $row[$column];
         }
     }
-
     return $values;
 }
 
@@ -29,8 +28,8 @@ try {
     $response = [
         'brand' => getDistinct($conn, 'brand'),
         'category' => getDistinct($conn, 'category'),
-        'wh_area' => getDistinct($conn, 'wh_area'),
-        'store_area' => getDistinct($conn, 'store_area'),
+        'area' => getDistinct($conn, 'area'),
+
     ];
 
     echo json_encode($response);

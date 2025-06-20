@@ -161,19 +161,10 @@ const AdminDashboard = () => {
     setSelectedUser(e.target.value);
   };
 
-  const handleExportDatabase = async () => {
-    try {
-      const response = await axios.get('http://localhost/dch_ver3/src/Backend/export_database.php');
-      if (response.data.success) {
-        alert('Database exported successfully!');
-      } else {
-        alert('Failed to export database.');
-      }
-    } catch (error) {
-      alert('Error exporting database.');
-      console.error(error);
-    }
-  };
+const handleExportDatabase = () => {
+  window.open('http://localhost/dch_ver3/src/Backend/export_database.php', '_blank');
+};
+
 
   return (
     <div className="min-h-screen bg-gray-100">

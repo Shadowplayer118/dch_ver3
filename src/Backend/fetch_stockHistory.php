@@ -12,21 +12,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include '../db.php'; // Adjust path as needed
 
 try {
-    if (!isset($_GET['inventory_id']) || empty($_GET['inventory_id'])) {
+    if (!isset($_GET['item_code']) || empty($_GET['item_code'])) {
         http_response_code(400);
-        echo json_encode(["error" => "Missing inventory_id parameter"]);
+        echo json_encode(["error" => "Missing item_code parameter"]);
         exit();
     }
 
-    $inventory_id = $_GET['inventory_id'];
+    $item_code = $_GET['item_code'];
 
-    $query = "SELECT trans_type, trans_units, trans_from, trans_date 
+    $query = "SELECT trans_type, trans_units, location, trans_date 
               FROM stock_history 
-              WHERE inventory_id = ?
+              WHERE item_code = ?
               ORDER BY trans_date DESC";
 
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $inventory_id);
+    $stmt->bind_param("s", $item_code);
     $stmt->execute();
     $result = $stmt->get_result();
 

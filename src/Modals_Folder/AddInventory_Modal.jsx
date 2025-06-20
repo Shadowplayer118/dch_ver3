@@ -16,12 +16,10 @@
       desc_4: '',
       retail_price: '',
       fixed_price: '',
-      wh_units: '',
-      store_units: '',
-      wh_area: '',
-      store_area: '',
-      wh_thresh: '',
-      store_thresh: '',
+      units: '',
+      area: '',
+      thresh_hold: '',
+      location: '',
       username: username,
       user_type: user_type,
     });
@@ -30,8 +28,7 @@
     const [options, setOptions] = useState({
       brand: [],
       category: [],
-      wh_area: [],
-      store_area: []
+      area: []
     });
 
     const [previewImage, setPreviewImage] = useState('http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png');
@@ -97,12 +94,10 @@
         desc_4: '',
         retail_price: '',
         fixed_price: '',
-        wh_units: '',
-        store_units: '',
-        wh_area: '',
-        store_area: '',
-        wh_thresh: '',
-        store_thresh: '',
+        units: '',  
+        area: '',
+        thresh_hold: '',
+        location: '',
       });
 
       setImageFile(null);
@@ -122,23 +117,23 @@
           <h2>Add Item</h2>
           <form onSubmit={handleSubmit} encType="multipart/form-data">
             <div className="form-group">
-              <label>Item Code</label>
-              <input type="text" name="item_code" value={formData.item_code} onChange={handleChange}   autoComplete="off"/>
+              <label hidden="true" >Item Code</label>
+              <input hidden="true" type="text" name="item_code" value={formData.item_code} onChange={handleChange}   autoComplete="off"/>
             </div>
             <div className="form-group">
               <label>Description 1 (Name)</label>
               <input type="text" name="desc_1" value={formData.desc_1} onChange={handleChange}   autoComplete="off"/>
             </div>
             <div className="form-group">
-              <label>Description 2 (Item Code)</label>
+              <label>Description 2 (Measurement)</label>
               <input type="text" name="desc_2" value={formData.desc_2} onChange={handleChange}   autoComplete="off"/>
             </div>
             <div className="form-group">
-              <label>Description 3 (Measurement)</label>
+              <label>Description 3 (Item Code)</label>
               <input type="text" name="desc_3" value={formData.desc_3} onChange={handleChange}   autoComplete="off"/>
             </div>
             <div className="form-group">
-              <label>Description 4 (Car Type)</label>
+              <label>Description 4 (Other Details)</label>
               <input type="text" name="desc_4" value={formData.desc_4} onChange={handleChange}   autoComplete="off"/>
             </div>
             <div className="form-group">
@@ -166,6 +161,7 @@
                 value={formData.category}
                 onChange={handleChange}
                 autoComplete="off"
+                required
               />
               <datalist id="category-list">
                 {options.category.map((item, idx) => (
@@ -174,12 +170,8 @@
               </datalist>
             </div>
             <div className="form-group">
-              <label>Warehouse Units</label>
-              <input type="number" name="wh_units" value={formData.wh_units} onChange={handleChange} autoComplete="off"/>
-            </div>
-            <div className="form-group">
               <label>Store Units</label>
-              <input type="number" name="store_units" value={formData.store_units} onChange={handleChange} autoComplete="off"/>
+              <input type="number" name="units" value={formData.units} onChange={handleChange} autoComplete="off"/>
             </div>
             <div className="form-group">
               <label>Fixed Price</label>
@@ -190,44 +182,53 @@
               <input type="number" name="retail_price" value={formData.retail_price} onChange={handleChange} step="0.01" autoComplete="off"/>
             </div>
             <div className="form-group">
-              <label>Warehouse Area</label>
-              <input
-                type="text"
-                name="wh_area"
-                list="wh-area-list"
-                value={formData.wh_area}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              <datalist id="wh-area-list">
-                {options.wh_area.map((item, idx) => (
-                  <option key={idx} value={item} />
-                ))}
-              </datalist>
             </div>
+
+
+            <div className="form-group">
+              <label>Location</label>
+                <select
+                  name="location"
+                  value={formData.location}
+                  onChange={handleChange}
+                  required
+                >
+                  <option value="">SELECT LOCATION</option>
+                  <option value="STORE">STORE</option>
+                  <option value="WAREHOUSE">WAREHOUSE</option>
+                </select>
+            </div>
+
             <div className="form-group">
               <label>Store Area</label>
-              <input
-                type="text"
-                name="store_area"
-                list="store-area-list"
-                value={formData.store_area}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              <datalist id="store-area-list">
-                {options.store_area.map((item, idx) => (
-                  <option key={idx} value={item} />
-                ))}
-              </datalist>
+                <input
+                  type="text"
+                  name="area"
+                  list="store-area-list"
+                  value={formData.area}
+                  onChange={handleChange}
+                  disabled={!formData.location} // 👈 disable if no location
+                  autoComplete="off"
+                />
+                  <datalist id="store-area-list">
+                    {options.area
+                      .filter(area =>
+                        formData.location === "STORE"
+                          ? area.toUpperCase().includes("STORE")
+                          : formData.location === "WAREHOUSE"
+                            ? !area.toUpperCase().includes("STORE")
+                            : false
+                      )
+                      .map((item, idx) => (
+                        <option key={idx} value={item} />
+                      ))}
+                  </datalist>
+
             </div>
+
             <div className="form-group">
-              <label>Warehouse Threshold</label>
-              <input type="number" name="wh_thresh" value={formData.wh_thresh} onChange={handleChange} autoComplete="off"/>
-            </div>
-            <div className="form-group">
-              <label>Store Threshold</label>
-              <input type="number" name="store_thresh" value={formData.store_thresh} onChange={handleChange} autoComplete="off"/>
+              <label>Thresh Hold</label>
+              <input type="number" name="thresh_hold" value={formData.thresh_hold} onChange={handleChange} autoComplete="off"/>
             </div>
 
           <div className="form-group">
