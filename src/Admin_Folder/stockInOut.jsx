@@ -35,6 +35,9 @@ const [selectedItem, setSelectedItem] = useState(null);
 
 const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
 
+const [sortField, setSortField] = useState("item_code");
+const [sortOrder, setSortOrder] = useState("asc");
+
 const [selectedLocation, setSelectedLocation] = useState(() => {
   return localStorage.getItem("selectedLocation") || "ALL";
 });
@@ -71,12 +74,14 @@ const handleCloseStockOut = () => {
     try {
       const offset = (currentPage - 1) * limit;
 
-      const params = new URLSearchParams({
-        ...filters,
-          location: selectedLocation, // ✅ Pass it here!
-        limit,
-        offset,
-      }).toString();
+        const params = new URLSearchParams({
+          ...filters,
+          location: selectedLocation,
+          limit,
+          offset,
+          sortField,
+          sortOrder,
+        }).toString();
 
       const response = await axios.get(
         `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
@@ -127,11 +132,11 @@ const fetchUniqueFilters = async () => {
 };
 
 
-  useEffect(() => {
-    fetchInventory();
-    fetchUniqueFilters();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filters, currentPage, inventory]);
+useEffect(() => {
+  fetchInventory();
+  fetchUniqueFilters();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [filters, currentPage, sortField, sortOrder, selectedLocation, inventory]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -201,6 +206,26 @@ const handleDelete = async (inventory_id) => {
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
       <AdminHeader /> 
+
+            <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+  <label>Sort by:</label>
+  <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
+    <option value="item_code">Item Code</option>
+    <option value="brand">Brand</option>
+    <option value="category">Category</option>
+    <option value="desc_1">Description 1</option>
+    <option value="desc_2">Description 2</option>
+    <option value="desc_3">Description 3</option>
+    <option value="desc_4">Description 4</option>
+    <option value="units">Units</option>
+    <option value="inventory_id">Sequence Added</option>
+  </select>
+
+  <select value={sortOrder} onChange={(e) => setSortOrder(e.target.value)}>
+    <option value="asc">Asc</option>
+    <option value="desc">Desc</option>
+  </select>
+</div>
 
             <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
         <button onClick={handleLocationChange} className="btn btn-secondary">
@@ -358,7 +383,10 @@ const handleDelete = async (inventory_id) => {
                 <td>
                   <div>{item.units}</div>
                 </td>
-                <td>{item.area}</td>
+                <td>
+                  <div>{item.location}</div>
+                  <div>{item.area}</div>
+                  </td>
                 <td>
                   <div>Fixed: ${item.fixed_price}</div>
                   <div>Retail: ${item.retail_price}</div>

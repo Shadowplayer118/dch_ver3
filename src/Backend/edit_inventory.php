@@ -32,6 +32,7 @@ $thresh_hold    = (int)getPost($conn, 'thresh_hold');
 $area           = getPost($conn, 'area');
 $username       = getPost($conn, 'username');
 $user_type      = getPost($conn, 'user_type');
+$original_item_code = getPost($conn, 'original_item_code');
 
 if (empty($inventory_id)) {
     http_response_code(400);
@@ -95,7 +96,7 @@ if ($img !== null) {
         'sssssssdddsss',
         $item_code, $brand, $category, $desc_1, $desc_2, $desc_3, $desc_4,
         $fixed_price, $retail_price, $thresh_hold,
-        $img, $tsv, $item_code
+        $img, $tsv, $original_item_code
     );
 } else {
     $sql = "UPDATE inventory SET
@@ -108,7 +109,7 @@ if ($img !== null) {
         'sssssssdddss',
         $item_code, $brand, $category, $desc_1, $desc_2, $desc_3, $desc_4,
         $fixed_price, $retail_price, $thresh_hold,
-        $tsv, $item_code
+        $tsv, $original_item_code
     );
 }
 

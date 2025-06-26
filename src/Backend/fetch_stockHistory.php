@@ -19,14 +19,15 @@ try {
     }
 
     $item_code = $_GET['item_code'];
+    $location = $_GET['location'];
 
     $query = "SELECT trans_type, trans_units, location, trans_date 
               FROM stock_history 
-              WHERE item_code = ?
+              WHERE item_code = ? AND location = ?
               ORDER BY trans_date DESC";
 
     $stmt = $conn->prepare($query);
-    $stmt->bind_param("s", $item_code);
+    $stmt->bind_param("ss", $item_code, $location);
     $stmt->execute();
     $result = $stmt->get_result();
 

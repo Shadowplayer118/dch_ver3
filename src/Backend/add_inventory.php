@@ -16,6 +16,7 @@ function getPost($conn, $key) {
     return isset($_POST[$key]) ? trim($conn->real_escape_string($_POST[$key])) : '';
 }
 
+$item_code     = getPost($conn, 'item_code'); // <-- now coming from frontend
 $brand         = getPost($conn, 'brand');
 $category      = getPost($conn, 'category');
 $desc_1        = getPost($conn, 'desc_1');
@@ -29,51 +30,10 @@ $area          = getPost($conn, 'area');
 $thresh_hold   = getPost($conn, 'thresh_hold');
 $username      = getPost($conn, 'username');
 $user_type     = getPost($conn, 'user_type');
-$location     = getPost($conn, 'location');
+$location      = getPost($conn, 'location');
 
 $tsv = $retail_price * $units;
 $is_deleted = 0;
-
-// ==== ITEM CODE GENERATION LOGIC ====
-$cat_prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $category), 0, 3));
-
-// Find all unique bases that start with this category prefix
-$existing_bases = [];
-$suffix_index = 0;
-
-$check_sql = "SELECT DISTINCT SUBSTRING_INDEX(item_code, '_', 1) AS base FROM inventory WHERE item_code LIKE '{$cat_prefix}%'";
-$result = $conn->query($check_sql);
-
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $existing_bases[] = $row['base'];
-    }
-    while (in_array($cat_prefix . ($suffix_index > 0 ? "_$suffix_index" : ""), $existing_bases)) {
-        $suffix_index++;
-    }
-}
-
-$final_cat_prefix = $cat_prefix . ($suffix_index > 0 ? "_$suffix_index" : "");
-
-// If brand is empty, skip brand in code
-if (empty($brand)) {
-    $code_prefix = $final_cat_prefix;
-} else {
-    $brand_prefix = strtoupper(substr(preg_replace('/[^a-zA-Z]/', '', $brand), 0, 3));
-    $code_prefix = $final_cat_prefix . $brand_prefix;
-}
-
-$latest_code_sql = "SELECT item_code FROM inventory WHERE item_code LIKE '{$code_prefix}%' ORDER BY item_code DESC LIMIT 1";
-$num_result = $conn->query($latest_code_sql);
-$next_number = 1;
-
-if ($num_result && $row = $num_result->fetch_assoc()) {
-    if (preg_match('/(\d{4})$/', $row['item_code'], $matches)) {
-        $next_number = intval($matches[1]) + 1;
-    }
-}
-
-$item_code = $code_prefix . str_pad($next_number, 4, '0', STR_PAD_LEFT);
 
 // ==== HANDLE IMAGE UPLOAD ====
 $img = 'default_autoparts.png';
@@ -117,7 +77,7 @@ if ($stmt->execute()) {
     $act_performed = "INSERT INTO inventory (...) VALUES (
         '$item_code', '$brand', '$category', '$desc_1', '$desc_2', '$desc_3', '$desc_4',
         $retail_price, $fixed_price, $units, '$area', '$thresh_hold', '$img',
-        $tsv, $is_deleted, NOW(), NOW(), $location)";
+        $tsv, $is_deleted, NOW(), NOW(), '$location')";
 
     $log_sql = "INSERT INTO activity_report (
         activity_type, table_performed, act_performed,
@@ -135,21 +95,20 @@ if ($stmt->execute()) {
 
     echo json_encode(['success' => true, 'message' => 'Item added successfully.']);
 
-    // Determine opposite area
-$opposite_area = $location === 'STORE' ? 'WAREHOUSE' : 'STORE';
+    // ==== DUPLICATE TO OPPOSITE LOCATION ====
+    $opposite_area = $location === 'STORE' ? 'WAREHOUSE' : 'STORE';
 
-$dup_sql = "INSERT INTO inventory (
-    item_code, brand, category, desc_1, desc_2, desc_3, desc_4,
-    retail_price, fixed_price, units,
-    thresh_hold, img,
-    tsv, is_deleted, date_created, last_updated, location
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
+    $dup_sql = "INSERT INTO inventory (
+        item_code, brand, category, desc_1, desc_2, desc_3, desc_4,
+        retail_price, fixed_price, units,
+        thresh_hold, img,
+        tsv, is_deleted, date_created, last_updated, location
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW(), ?)";
 
-
-$dup_stmt = $conn->prepare($dup_sql);
-if ($dup_stmt) {
-    $zero_units = 0;
-    $zero_tsv = 0;
+    $dup_stmt = $conn->prepare($dup_sql);
+    if ($dup_stmt) {
+        $zero_units = 0;
+        $zero_tsv = 0;
         $dup_stmt->bind_param(
             'sssssssdddisiss',
             $item_code, $brand, $category, $desc_1, $desc_2, $desc_3, $desc_4,
@@ -157,9 +116,9 @@ if ($dup_stmt) {
             $thresh_hold, $img,
             $zero_tsv, $is_deleted, $opposite_area
         );
-    $dup_stmt->execute();
-    $dup_stmt->close();
-}
+        $dup_stmt->execute();
+        $dup_stmt->close();
+    }
 
 } else {
     http_response_code(500);

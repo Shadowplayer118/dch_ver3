@@ -23,7 +23,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
         const response = await axios.get(
           'http://localhost/dch_ver3/src/Backend/fetch_stockHistory.php',
           {
-            params: { item_code: itemData.item_code },
+            params: { item_code: itemData.item_code, location: itemData.location },
           }
         );
         setHistory(response.data);
@@ -74,6 +74,23 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
   const goToNextPage = () => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
+
+const sortedHistory = [...filteredHistory].sort((a, b) => new Date(a.trans_date) - new Date(b.trans_date));
+
+
+const calculatedUnits = history.reduce((total, record) => {
+  const units = parseInt(record.trans_units) || 0;
+
+  if (record.trans_type === "STOCK IN") return total + units;
+  if (record.trans_type === "STOCK OUT") return total - units;
+  return total;
+}, 0);
+
+
+const actualUnits = parseInt(itemData.units) || 0;
+const discrepancy = calculatedUnits - actualUnits;
+
+
 
 
   const exportToExcel = () => {
@@ -185,9 +202,10 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
         {/* Item Details */}
         <div className="item-details">
           <p><strong>Item Code:</strong> {itemData.item_code}</p>
-          <p><strong>Name:</strong> {itemData.desc_1 + itemData.desc_2 + itemData.desc_3}</p>
+          <p><strong>Name:</strong> {itemData.desc_1 + itemData.desc_2 + itemData.desc_3 + itemData.desc_4}</p>
           <p><strong>Brand:</strong> {itemData.brand}</p>
           <p><strong>Category:</strong> {itemData.category}</p>
+          <p><strong>Current Units:</strong> {itemData.units}</p>
         </div>
 
         {/* Filter Controls */}
@@ -218,6 +236,11 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
             </select>
           </label>
         </div>
+
+          <div>
+            Calculated Units from History: {calculatedUnits} <br />
+             Discrepancy Detected: {discrepancy > 0 ? `+${discrepancy} extra units` : `${Math.abs(discrepancy)} units missing`}
+          </div>
 
         {/* Stock History Table */}
         <table className="history-table">

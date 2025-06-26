@@ -2,7 +2,11 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
-  const [formData, setFormData] = useState({ ...initialData });
+  const [formData, setFormData] = useState({
+    ...initialData,
+    original_item_code: initialData.item_code,
+  });
+
   const [imageFile, setImageFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(
     initialData.img
@@ -13,8 +17,56 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
   const [options, setOptions] = useState({
     brand: [],
     category: [],
-    area: []
+    area: [],
   });
+
+  const originalCategory = initialData.category;
+  const originalBrand = initialData.brand;
+  const originalItemCode = initialData.item_code;
+
+  const generateItemCode = async (brand, category) => {
+    if (!category) return;
+
+    const catPart = category.substring(0, 3).toUpperCase();
+    const brandPart = brand
+      ? brand.substring(0, 3).toUpperCase().replace(/\s/g, '').replace(/[^A-Z0-9]/gi, '')
+      : '';
+    const prefix = `${catPart}${brandPart}`;
+
+    try {
+      const res = await axios.get(
+        `http://localhost/dch_ver3/src/Backend/check_item_code.php?prefix=${prefix}`
+      );
+      const lastCode = res.data;
+
+      let newIncrement = '0001';
+      if (lastCode && lastCode.startsWith(prefix)) {
+        const numericPart = lastCode.slice(prefix.length);
+        const lastNumber = parseInt(numericPart, 10);
+        if (!isNaN(lastNumber)) {
+          newIncrement = (lastNumber + 1).toString().padStart(4, '0');
+        }
+      }
+
+      const newItemCode = prefix + newIncrement;
+      setFormData((prev) => ({ ...prev, item_code: newItemCode }));
+    } catch (err) {
+      console.error('Failed to generate item_code:', err);
+    }
+  };
+
+  useEffect(() => {
+    if (!formData.category) return;
+
+    const hasCategoryChanged = formData.category !== originalCategory;
+    const hasBrandChanged = formData.brand !== originalBrand;
+
+    if (hasCategoryChanged || hasBrandChanged) {
+      generateItemCode(formData.brand, formData.category);
+    } else {
+      setFormData((prev) => ({ ...prev, item_code: originalItemCode }));
+    }
+  }, [formData.category, formData.brand]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -32,7 +84,11 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
   }, [isOpen]);
 
   useEffect(() => {
-    setFormData({ ...initialData });
+    setFormData({
+      ...initialData,
+      original_item_code: initialData.item_code,
+    });
+
     setPreviewImage(
       initialData.img
         ? `http://localhost/dch_ver3/src/Backend/Images/${initialData.img}`
@@ -67,10 +123,10 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
         data.append(key, value);
       });
 
-      const username = localStorage.getItem("username");
-      const user_type = localStorage.getItem("user_type");
-      if (username) data.append("username", username);
-      if (user_type) data.append("user_type", user_type);
+      const username = localStorage.getItem('username');
+      const user_type = localStorage.getItem('user_type');
+      if (username) data.append('username', username);
+      if (user_type) data.append('user_type', user_type);
 
       if (imageFile) {
         data.append('img', imageFile);
@@ -91,15 +147,13 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
       <div className="modal-content">
         <h2>Edit Item</h2>
         <form onSubmit={handleSubmit} encType="multipart/form-data">
-          {/* Hidden item code field */}
           <input name="item_code" value={formData.item_code} readOnly />
 
-          {/* Descriptions */}
           {[
             ['Description 1 (Name)', 'desc_1'],
             ['Description 2 (Measurement)', 'desc_2'],
             ['Description 3 (Item Code)', 'desc_3'],
-            ['Description 4 (Other Details)', 'desc_4']
+            ['Description 4 (Other Details)', 'desc_4'],
           ].map(([label, name]) => (
             <div className="form-group" key={name}>
               <label>{label}</label>
@@ -113,10 +167,9 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             </div>
           ))}
 
-          {/* Brand, Category with Datalist */}
           {[
             ['Brand', 'brand', 'brand-list', options.brand],
-            ['Category', 'category', 'category-list', options.category]
+            ['Category', 'category', 'category-list', options.category],
           ].map(([label, name, listId, list]) => (
             <div className="form-group" key={name}>
               <label>{label}</label>
@@ -136,11 +189,10 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             </div>
           ))}
 
-          {/* Units, Fixed and Retail Price */}
           {[
             ['Store Units', 'units'],
             ['Fixed Price', 'fixed_price'],
-            ['Retail Price', 'retail_price']
+            ['Retail Price', 'retail_price'],
           ].map(([label, name]) => (
             <div className="form-group" key={name}>
               <label>{label}</label>
@@ -155,15 +207,11 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             </div>
           ))}
 
-          {/* Location Dropdown */}
-
-
           <div className="form-group">
             <label>Location</label>
-            <input type="text" value={formData.location} readOnly/>
+            <input type="text" value={formData.location} readOnly />
           </div>
 
-          {/* Area with location-based filtering */}
           <div className="form-group">
             <label>Store Area</label>
             <input
@@ -177,12 +225,12 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             />
             <datalist id="area-list">
               {options.area
-                .filter(area =>
-                  formData.location === "STORE"
-                    ? area.toUpperCase().includes("STORE")
-                    : formData.location === "WAREHOUSE"
-                      ? !area.toUpperCase().includes("STORE")
-                      : false
+                .filter((area) =>
+                  formData.location === 'STORE'
+                    ? area.toUpperCase().includes('STORE')
+                    : formData.location === 'WAREHOUSE'
+                    ? !area.toUpperCase().includes('STORE')
+                    : false
                 )
                 .map((item, idx) => (
                   <option key={idx} value={item} />
@@ -190,7 +238,6 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             </datalist>
           </div>
 
-          {/* Threshold */}
           <div className="form-group">
             <label>Thresh Hold</label>
             <input
@@ -202,7 +249,6 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
             />
           </div>
 
-          {/* Image Upload */}
           <div className="form-group">
             <label>Item Image</label>
             <input type="file" accept="image/*" onChange={handleImageChange} autoComplete="off" />
@@ -210,15 +256,21 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
               <img
                 src={previewImage}
                 alt="Preview"
-                style={{ width: '120px', height: '120px', objectFit: 'cover', border: '1px solid #ccc' }}
+                style={{
+                  width: '120px',
+                  height: '120px',
+                  objectFit: 'cover',
+                  border: '1px solid #ccc',
+                }}
               />
             </div>
           </div>
 
-          {/* Buttons */}
           <div className="modal-actions">
             <button type="submit">Update</button>
-            <button type="button" onClick={onClose} className="cancel-btn">Cancel</button>
+            <button type="button" onClick={onClose} className="cancel-btn">
+              Cancel
+            </button>
           </div>
         </form>
       </div>

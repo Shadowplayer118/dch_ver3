@@ -5,14 +5,82 @@ import AdminHeader from './AdminHeader';
 // Days order fixed to Monday - Sunday
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
-// Helper: convert YYYY-MM-DD to YYYYWW (ISO week number)
+const InventorySummary = () => {
+  const [location, setLocation] = useState('ALL');
+  const [summary, setSummary] = useState({ item_count: 0, total_value: 0, stock_in_today: 0, stock_out_today: 0 });
+  const [loading, setLoading] = useState(true);
+
+
+  const locationCycle = ['ALL', 'WAREHOUSE', 'STORE'];
+
+
+  const toggleLocation = () => {
+    const currentIndex = locationCycle.indexOf(location);
+    const next = locationCycle[(currentIndex + 1) % locationCycle.length];
+    setLocation(next);
+  };
+
+  useEffect(() => {
+    const fetchSummary = async () => {
+      setLoading(true);
+      try {
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/inventory_summary.php', {
+          params: { location },
+        });
+        setSummary(res.data);
+      } catch (err) {
+        console.error('Error loading inventory summary:', err);
+        setSummary({ item_count: 0, total_value: 0, stock_in_today: 0, stock_out_today: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSummary();
+  }, [location]);
+
+  return (
+    <div className="bg-white p-4 rounded shadow">
+      <div className="flex justify-between items-center mb-4">
+        <h2 className="text-lg font-semibold">Inventory Summary</h2>
+        <button
+          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+          onClick={toggleLocation}
+        >
+          Location: {location}
+        </button>
+      </div>
+      {loading ? (
+        <p>Loading summary...</p>
+      ) : (
+        <div className="grid grid-cols-2 gap-4">
+          <div className="bg-gray-100 p-3 rounded">
+            <p className="font-semibold">Total Items</p>
+            <p className="text-xl">{summary.item_count}</p>
+          </div>
+          <div className="bg-gray-100 p-3 rounded">
+            <p className="font-semibold">Total Stock Value (TSV)</p>
+            <p className="text-xl">₱ {parseFloat(summary.total_value).toFixed(2)}</p>
+          </div>
+          <div className="bg-gray-100 p-3 rounded">
+            <p className="font-semibold">Stock-Ins Today</p>
+            <p className="text-xl">{summary.stock_in_today}</p>
+          </div>
+          <div className="bg-gray-100 p-3 rounded">
+            <p className="font-semibold">Stock-Outs Today</p>
+            <p className="text-xl">{summary.stock_out_today}</p>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 function dateToYearWeek(dateString) {
   if (!dateString) return '';
-
   const date = new Date(dateString);
-  // Get ISO week number, https://weeknumber.net/how-to/javascript
   const target = new Date(date.valueOf());
-  const dayNr = (date.getDay() + 6) % 7; // Monday=0,...Sunday=6
+  const dayNr = (date.getDay() + 6) % 7;
   target.setDate(target.getDate() - dayNr + 3);
   const firstThursday = target.valueOf();
   target.setMonth(0, 1);
@@ -28,7 +96,6 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch report when user or week changes
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -36,14 +103,14 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
         const yearweek = dateToYearWeek(selectedWeek);
         const response = await axios.get('http://localhost/dch_ver3/src/Backend/load_activitytable.php', {
           params: {
-            username: selectedUser || '',  // pass username string
-            yearweek: yearweek || '',      // pass formatted yearweek
+            username: selectedUser || '',
+            yearweek: yearweek || '',
           },
         });
         setData(response.data);
       } catch (error) {
         console.error('Error fetching weekly activity report:', error);
-        setData([]); // reset on error
+        setData([]);
       } finally {
         setLoading(false);
       }
@@ -51,7 +118,6 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
     fetchData();
   }, [selectedUser, selectedWeek]);
 
-  // ... rest of your existing WeeklyActivityReport rendering code remains unchanged
   const dataMap = {};
   data.forEach((row) => {
     dataMap[row.day_name] = row;
@@ -144,33 +210,39 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
 const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedWeek, setSelectedWeek] = useState('');
+    const [users, setUsers] = useState([]);
 
-  // Example user list - use usernames as values now
-  const users = [
-    { username: '', name: 'All Users' },
-    { username: 'dhaniel', name: 'Dhaniel' },
-    { username: 'janedoe', name: 'Jane Doe' },
-    // replace with your real usernames
-  ];
+useEffect(() => {
+  const fetchUsers = async () => {
+    try {
+      const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_user.php');
+      setUsers(res.data);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+      setUsers([{ username: '', name: 'All Users' }]); // fallback
+    }
+  };
+
+  fetchUsers();
+}, []);
 
   const handleWeekChange = (e) => {
-    setSelectedWeek(e.target.value); // ISO date string 'YYYY-MM-DD'
+    setSelectedWeek(e.target.value);
   };
 
   const handleUserChange = (e) => {
     setSelectedUser(e.target.value);
   };
 
-const handleExportDatabase = () => {
-  window.open('http://localhost/dch_ver3/src/Backend/export_database.php', '_blank');
-};
-
+  const handleExportDatabase = () => {
+    window.open('http://localhost/dch_ver3/src/Backend/export_database.php', '_blank');
+  };
 
   return (
     <div className="min-h-screen bg-gray-100">
       <AdminHeader />
-
       <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <InventorySummary />
         <div>
           <button
             onClick={() => window.open('/ActivityReport', '_blank')}
@@ -178,7 +250,6 @@ const handleExportDatabase = () => {
           >
             Open Activity Report
           </button>
-
           <button
             onClick={handleExportDatabase}
             className="ml-4 bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
@@ -186,7 +257,6 @@ const handleExportDatabase = () => {
             Export Database
           </button>
         </div>
-
         <div className="flex items-center gap-4">
           <label className="font-semibold">
             Select User:
@@ -196,13 +266,10 @@ const handleExportDatabase = () => {
               onChange={handleUserChange}
             >
               {users.map(({ username, name }) => (
-                <option key={username} value={username}>
-                  {name}
-                </option>
+                <option key={username} value={username}>{name}</option>
               ))}
             </select>
           </label>
-
           <label className="font-semibold">
             Select Week:
             <input
@@ -214,7 +281,6 @@ const handleExportDatabase = () => {
             <small className="block text-gray-500 text-xs">Pick any date within the desired week</small>
           </label>
         </div>
-
         <WeeklyActivityReport selectedUser={selectedUser} selectedWeek={selectedWeek} />
       </div>
     </div>

@@ -20,11 +20,19 @@ $trans_type = getParam($conn, 'trans_type');
 $location = getParam($conn, 'location');
 $brand = getParam($conn, 'brand');
 $category = getParam($conn, 'category');
+$start = getParam($conn, 'start');
+$end = getParam($conn, 'end');
 
 $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 500;
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
 $conditions = [];
+
+$sort_by = getParam($conn, 'sort_by');
+$sort_dir = strtoupper(getParam($conn, 'sort_dir')) === 'ASC' ? 'ASC' : 'DESC';
+
+$allowed_sort_columns = ['stock_id', 'trans_date', 'date_created'];
+$sort_column = in_array($sort_by, $allowed_sort_columns) ? $sort_by : 'trans_date';
 
 if ($search !== '') {
     $conditions[] = "(i.item_code LIKE '%$search%' 
@@ -49,6 +57,14 @@ if ($category !== '') {
     $conditions[] = "i.category = '$category'";
 }
 
+if ($start !== '') {
+    $conditions[] = "DATE(s.trans_date) >= '$start'";
+}
+
+if ($end !== '') {
+    $conditions[] = "DATE(s.trans_date) <= '$end'";
+}
+
 $whereClause = count($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
 // Get total count for pagination
@@ -56,7 +72,10 @@ $totalQuery = "
     SELECT COUNT(*) AS total 
     FROM stock_history s
     LEFT JOIN (
-        SELECT * FROM inventory GROUP BY item_code
+        SELECT inventory_id, item_code, desc_1, brand, category
+        FROM inventory
+        WHERE is_deleted = 0
+        GROUP BY item_code
     ) i ON s.item_code = i.item_code
     $whereClause
 ";
@@ -66,29 +85,31 @@ if ($totalResult && $row = $totalResult->fetch_assoc()) {
     $total = intval($row['total']);
 }
 
-// Main query to get stock history with inventory details
+// Main query
 $sql = "
     SELECT 
         i.item_code,
         i.desc_1,
         i.brand,
         i.category,
-        s.trans_type,
+        s.trans_type,   
         s.username,
         s.trans_units,
         s.location,
         s.trans_date
     FROM stock_history s
     LEFT JOIN (
-        SELECT * FROM inventory GROUP BY item_code
+        SELECT inventory_id, item_code, desc_1, brand, category
+        FROM inventory
+        WHERE is_deleted = 0
+        GROUP BY item_code
     ) i ON s.item_code = i.item_code
     $whereClause
-    ORDER BY s.trans_date DESC
+    ORDER BY s.$sort_column $sort_dir
     LIMIT $limit OFFSET $offset
 ";
 
 $result = $conn->query($sql);
-
 $history = [];
 
 if ($result) {

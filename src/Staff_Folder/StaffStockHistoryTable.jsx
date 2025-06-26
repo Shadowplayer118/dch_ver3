@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AdminHeader from './AdminHeader';
+import StaffHeader from './StaffHeader';
 import * as XLSX from 'xlsx';
 
-const StockHistoryTable = () => {
-  const [stockHistory, setStockHistory] = useState([]);
+const StaffStockHistoryTable = () => {
+   const [stockHistory, setStockHistory] = useState([]);
   const [search, setSearch] = useState('');
   const [filters, setFilters] = useState(() => ({
     brand: '',
@@ -153,7 +153,7 @@ const StockHistoryTable = () => {
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg overflow-x-auto">
-      <AdminHeader />
+      <StaffHeader />
       <h2 className="text-xl font-bold mb-4">Stock History</h2>
 
       <select
@@ -326,4 +326,4 @@ const StockHistoryTable = () => {
   );
 };
 
-export default StockHistoryTable;
+export default StaffStockHistoryTable;

@@ -1,20 +1,23 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function StaffHeader() {
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // ✅ FIXED
 
   const handleLogout = () => {
-    localStorage.clear();  // Clear all localStorage
-    navigate('/');         // Redirect to login page
+    localStorage.clear();
+    navigate('/'); // ✅ FIXED
   };
 
   return (
     <header>
       <h1>DCH Inventory</h1>
-      <button onClick={handleLogout}>
-        Logout
-      </button>
+      <nav>
+        <Link to="/StaffInventory">Inventory</Link>
+        <Link to="/StaffStockInOut">Stock In/Out</Link>
+        <Link to="/StaffStockHistoryTable">Stock History</Link>
+      </nav>
+      <button onClick={handleLogout}>Logout</button>
     </header>
   );
 }

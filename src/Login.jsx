@@ -23,7 +23,7 @@ function Login() {
         if (data.user_type === "admin") {
           navigate("/AdminDashboard");
         } else if (data.user_type === "staff-wh" || data.user_type === "staff-store") {
-          navigate("/StaffDashboard");
+          navigate("/StaffInventory");
         } else {
           alert("Unknown user type.");
         }

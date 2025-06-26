@@ -1,15 +1,12 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import AdminHeader from "./AdminHeader";
-import * as XLSX from 'xlsx';
 
-import AddInventory_Modal from "../Modals_Folder/AddInventory_Modal";
-import EditInventory_Modal from "../Modals_Folder/EditInventory_Modal";
-import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
+import StaffHeader from "./StaffHeader";
+import StockIn_Modal from "../Modals_Folder/StockIn_Modal";
+import StockOut_Modal from "../Modals_Folder/StockOut_Modal";
 
-
-function InventoryTable() {
-  const [inventory, setInventory] = useState([]);
+function StaffStockInOutTable() {
+    const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
     brand: "",
@@ -32,23 +29,28 @@ function InventoryTable() {
   const limit = 10;
   const [totalItems, setTotalItems] = useState(0);
 
-  const [isAddOpen, setIsAddOpen] = useState(false);
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [showHistoryModal, setShowHistoryModal] = useState(false);
-
-  
-
-    const [selectedItem, setSelectedItem] = useState(null);
-
-    const [sortField, setSortField] = useState("item_code");
-const [sortOrder, setSortOrder] = useState("asc");
-
+  const [isStockInOpen, setIsStockInOpen] = useState(false);
+const [isStockOutOpen, setIsStockOutOpen] = useState(false);
+const [selectedItem, setSelectedItem] = useState(null);
 
 const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
+
+const [sortField, setSortField] = useState("item_code");
+const [sortOrder, setSortOrder] = useState("asc");
 
 const [selectedLocation, setSelectedLocation] = useState(() => {
   return localStorage.getItem("selectedLocation") || "ALL";
 });
+
+const userType = localStorage.getItem('user_type'); 
+
+const canModifyStock = (location) => {
+  if (userType === 'admin') return true;
+  if (userType === 'staff-wh' && location === 'WAREHOUSE') return true;
+  if (userType === 'staff-store' && location === 'STORE') return true;
+  return false;
+};
+
 
 const handleLocationChange = () => {
   const currentIndex = locationOptions.indexOf(selectedLocation);
@@ -58,42 +60,69 @@ const handleLocationChange = () => {
   localStorage.setItem("selectedLocation", newLocation);
 };
 
-
-const fetchInventory = async () => {
-  try {
-    const offset = (currentPage - 1) * limit;
-
-const params = new URLSearchParams({
-  ...filters,
-  location: selectedLocation, // ✅ Pass it here!
-  limit,
-  offset,
-  sortField,   // ✅ Add sorting field
-  sortOrder, 
-}).toString();
-
-
-
-    const response = await axios.get(
-      `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
-    );
-    const result = response.data;
-
-    if (!Array.isArray(result.data)) {
-      throw new Error("Invalid inventory data format");
-    }
-
-    setInventory(result.data);
-    setTotalItems(result.total || 0);
-
-    setError(null);
-  } catch (err) {
-    console.error(err);
-    setError("Failed to load inventory data");
-  }
+  const handleOpenStockIn = (item) => {
+  setSelectedItem(item);
+  setIsStockInOpen(true);
 };
 
+const handleCloseStockIn = () => {
+  setIsStockInOpen(false);
+  setSelectedItem(null);
+};
 
+  const handleOpenStockOut = (item) => {
+  setSelectedItem(item);
+  setIsStockOutOpen(true);
+};
+
+const handleCloseStockOut = () => {
+  setIsStockOutOpen(false);
+  setSelectedItem(null);
+};
+
+  const fetchInventory = async () => {
+    try {
+      const offset = (currentPage - 1) * limit;
+
+        const params = new URLSearchParams({
+          ...filters,
+          location: selectedLocation,
+          limit,
+          offset,
+          sortField,
+          sortOrder,
+        }).toString();
+
+      const response = await axios.get(
+        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
+      );
+      const result = response.data;
+
+      if (!Array.isArray(result.data)) {
+        throw new Error("Invalid inventory data format");
+      }
+
+      const inventoryData = result.data;
+      setInventory(inventoryData);
+      setTotalItems(result.total || 0);
+
+      const getUniques = (key) =>
+        [...new Set(inventoryData.map((item) => item[key]).filter(Boolean))].sort();
+
+      const areaSet = new Set();
+      inventoryData.forEach((item) => {
+        if (item.wh_area) areaSet.add(item.wh_area);
+        if (item.store_area) areaSet.add(item.store_area);
+      });
+
+      const areas = Array.from(areaSet).sort();
+
+      setError(null);
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load inventory data");
+    }
+  };
 
 const fetchUniqueFilters = async () => {
   try {
@@ -116,7 +145,8 @@ const fetchUniqueFilters = async () => {
 useEffect(() => {
   fetchInventory();
   fetchUniqueFilters();
-}, [filters, currentPage, selectedLocation, sortField, sortOrder, inventory]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, [filters, currentPage, sortField, sortOrder, selectedLocation, inventory]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -127,11 +157,6 @@ useEffect(() => {
   const handleEditClick = (item) => {
   setSelectedItem(item);
   setIsEditModalOpen(true);
-};
-
-const handleViewHistory = (item) => {
-  setSelectedItem(item);
-  setShowHistoryModal(true);
 };
 
   const totalPages = Math.ceil(totalItems / limit);
@@ -149,7 +174,7 @@ const handleViewHistory = (item) => {
     setCurrentPage(Number(e.target.value));
   };
 
-const handleDelete = async (item_code) => {
+const handleDelete = async (inventory_id) => {
   const username = localStorage.getItem("username");
   const user_type = localStorage.getItem("user_type");
 
@@ -166,7 +191,7 @@ const handleDelete = async (item_code) => {
     const response = await axios.post(
       'http://localhost/dch_ver3/src/Backend/delete_inventory.php',
       {
-        item_code,
+        inventory_id,
         username,
         user_type
       },
@@ -188,70 +213,11 @@ const handleDelete = async (item_code) => {
   }
 };
 
-
-const handleExportFilteredToExcel = async () => {
-  try {
-    const params = new URLSearchParams({
-      ...filters,
-      location: selectedLocation,
-      sortField,
-      sortOrder,
-      limit: 99999,
-      offset: 0
-    });
-
-    const response = await axios.get(
-      `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params.toString()}`
-    );
-
-    const allFiltered = response.data.data;
-
-    const exportData = allFiltered.map(item => ({
-      'Units': '',
-      'Item Code': item.item_code,
-       Category: item.category,
-      'Description 1': item.desc_1,
-      'Description 2': item.desc_2,
-      'Description 3': item.desc_3,
-      'Description 4': item.desc_4,
-      Brand: item.brand,
-      Location: item.location
-    }));
-
-    const worksheet = XLSX.utils.json_to_sheet(exportData);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'FilteredInventory');
-
-    // Build filename based on filters
-    const filenameParts = ['IP'];
-    if (filters.category) filenameParts.push(`CAT-${filters.category.toUpperCase()}`);
-    if (filters.brand) filenameParts.push(`BRAND-${filters.brand.toUpperCase()}`);
-    if (filters.desc_1) filenameParts.push(`DESC1-${filters.desc_1.toUpperCase()}`);
-    if (filters.area) filenameParts.push(`AREA-${filters.area.toUpperCase()}`);
-
-    const filename = filenameParts.join('_') + '.xlsx';
-
-    XLSX.writeFile(workbook, filename);
-  } catch (error) {
-    console.error("Failed to export full data:", error);
-    alert("Failed to export. Try again.");
-  }
-};
-
-
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
-      <AdminHeader />
+      <StaffHeader /> 
 
-      <button
-        onClick={handleExportFilteredToExcel}
-        className="btn btn-success"
-        style={{ marginTop: "1rem", marginBottom: "1rem" }}
-        >
-        Export Filtered to Excel
-      </button>
-
-      <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
+            <div style={{ marginBottom: "1rem", display: "flex", gap: "0.5rem", alignItems: "center" }}>
   <label>Sort by:</label>
   <select value={sortField} onChange={(e) => setSortField(e.target.value)}>
     <option value="item_code">Item Code</option>
@@ -262,7 +228,6 @@ const handleExportFilteredToExcel = async () => {
     <option value="desc_3">Description 3</option>
     <option value="desc_4">Description 4</option>
     <option value="units">Units</option>
-    <option value="last_updated">Last Updated</option>
     <option value="inventory_id">Sequence Added</option>
   </select>
 
@@ -272,7 +237,7 @@ const handleExportFilteredToExcel = async () => {
   </select>
 </div>
 
-      <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
+            <div style={{ marginTop: "1rem", marginBottom: "1rem" }}>
         <button onClick={handleLocationChange} className="btn btn-secondary">
           Location: {selectedLocation} (Click to cycle)
         </button>
@@ -290,29 +255,17 @@ const handleExportFilteredToExcel = async () => {
         autoComplete="off"
       />
 
-        <AddInventory_Modal
-      isOpen={isAddOpen}
-      onClose={() => setIsAddOpen(false)}
-      />
-
-      {isEditModalOpen && selectedItem && (
-        <EditInventory_Modal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        initialData={selectedItem}
+        <StockIn_Modal
+            isOpen={isStockInOpen}
+            onClose={handleCloseStockIn}
+            itemData={selectedItem}
         />
-      )}
 
-      <StockHistory_Modal
-        isOpen={showHistoryModal}
-        onClose={() => setShowHistoryModal(false)}
-        itemData={selectedItem}
-      />
-
-
-      <button onClick={() => setIsAddOpen(true)} className="btn btn-primary">
-      + Add New
-      </button>
+        <StockOut_Modal
+            isOpen={isStockOutOpen}
+            onClose={handleCloseStockOut}
+            itemData={selectedItem}
+        />
 
       <table
         border="1"
@@ -439,25 +392,32 @@ const handleExportFilteredToExcel = async () => {
                 <td>{item.category}</td>
                 <td>
                   <div>{item.units}</div>
- 
                 </td>
                 <td>
                   <div>{item.location}</div>
                   <div>{item.area}</div>
-                </td>
+                  </td>
                 <td>
                   <div>Fixed: ${item.fixed_price}</div>
                   <div>Retail: ${item.retail_price}</div>
                   <div>TSV: {item.tsv}</div>
                 </td>
                 <td>
-
-                  
-                  <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
-                  <br />
-                  <button onClick={() => handleViewHistory(item)}>History</button>
-                  <br />
-                  <button onClick={() => handleDelete(item.item_code)}>Delete</button>
+                  <button
+                      onClick={() => handleOpenStockIn(item)}
+                      disabled={!canModifyStock(item.location)}
+                      style={!canModifyStock(item.location) ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                    >
+                      Stock In
+                    </button>
+                    <br />
+                    <button
+                      onClick={() => handleOpenStockOut(item)}
+                      disabled={!canModifyStock(item.location)}
+                      style={!canModifyStock(item.location) ? { opacity: 0.5, cursor: "not-allowed" } : {}}
+                    >
+                      Stock Out
+                    </button>
                 </td>
               </tr>
             ))
@@ -505,4 +465,4 @@ const handleExportFilteredToExcel = async () => {
   );
 }
 
-export default InventoryTable;
+export default StaffStockInOutTable;

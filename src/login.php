@@ -13,7 +13,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 include 'db.php';
 
 $data = json_decode(file_get_contents("php://input"));
-
 $username = $data->username ?? '';
 $password = $data->password ?? '';
 
@@ -29,13 +28,14 @@ $stmt->execute();
 $result = $stmt->get_result();
 
 if ($user = $result->fetch_assoc()) {
-
-    // Debug logging (optional, remove in production)
-    error_log("Input password: " . $password);
-    error_log("DB password: " . $user['password']);
-
-    // Use password_verify if DB password is hashed, else plain check for testing
     if (password_verify($password, $user['password']) || $password === $user['password']) {
+        // ✅ Update last_logged and is_active
+        $updateSql = "UPDATE user SET last_logged = NOW(), is_active = 1 WHERE username = ?";
+        $updateStmt = $conn->prepare($updateSql);
+        $updateStmt->bind_param("s", $username);
+        $updateStmt->execute();
+        $updateStmt->close();
+
         echo json_encode([
             "success" => true,
             "username" => $user['username'],
@@ -47,4 +47,7 @@ if ($user = $result->fetch_assoc()) {
 } else {
     echo json_encode(["success" => false, "message" => "User not found"]);
 }
+
+$stmt->close();
+$conn->close();
 ?>

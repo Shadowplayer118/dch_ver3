@@ -15,31 +15,38 @@ function getParam($conn, $key) {
     return isset($_GET[$key]) ? trim($conn->real_escape_string($_GET[$key])) : '';
 }
 
+// Get filters
 $search = getParam($conn, 'search');
 $brand = getParam($conn, 'brand');
 $category = getParam($conn, 'category');
 $desc1 = getParam($conn, 'desc_1');
 $desc4 = getParam($conn, 'desc_4');
 $area = getParam($conn, 'area');
-$location = strtoupper(getParam($conn, 'location')); // Normalize to uppercase for comparison
+$location = strtoupper(getParam($conn, 'location'));
 
+// Pagination
 $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 500;
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
-$conditions = [];
+// Sorting
+$allowedSortFields = ['item_code', 'brand', 'category', 'desc_1', 'units', 'fixed_price', 'retail_price', 'inventory_id'];
+$sortField = in_array(getParam($conn, 'sortField'), $allowedSortFields) ? getParam($conn, 'sortField') : 'inventory_id';
+$sortOrder = strtolower(getParam($conn, 'sortOrder')) === 'asc' ? 'ASC' : 'DESC';
 
-// Exclude deleted
+// Build WHERE clause
+$conditions = [];
 $conditions[] = "is_deleted != 1";
 
 if ($search !== '') {
-    $conditions[] = "(item_code LIKE '%$search%' 
-                      OR desc_1 LIKE '%$search%' 
-                      OR desc_2 LIKE '%$search%' 
-                      OR desc_3 LIKE '%$search%' 
-                      OR desc_4 LIKE '%$search%'
-                      OR brand LIKE '%$search%'
-                      OR category LIKE '%$search%'
-                      OR CONCAT(desc_1, ' ', desc_2, ' ', desc_3) LIKE '%$search%')";
+    $searchEscaped = $conn->real_escape_string($search);
+    $conditions[] = "(item_code LIKE '%$searchEscaped%' 
+                      OR desc_1 LIKE '%$searchEscaped%' 
+                      OR desc_2 LIKE '%$searchEscaped%' 
+                      OR desc_3 LIKE '%$searchEscaped%' 
+                      OR desc_4 LIKE '%$searchEscaped%'
+                      OR brand LIKE '%$searchEscaped%'
+                      OR category LIKE '%$searchEscaped%'
+                      OR CONCAT(desc_1, ' ', desc_2, ' ', desc_3) LIKE '%$searchEscaped%')";
 }
 
 if ($brand !== '') {
@@ -62,28 +69,24 @@ if ($area !== '') {
     $conditions[] = "(area = '$area')";
 }
 
-// Add condition based on location, unless it's ALL or empty
-// Add condition based on location
 if ($location === 'STORE') {
     $conditions[] = "location = 'STORE'";
 } elseif ($location === 'WAREHOUSE') {
     $conditions[] = "location = 'WAREHOUSE'";
 }
 
-
 $whereClause = count($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
-// Total count
+// Get total count
 $totalQuery = "SELECT COUNT(*) AS total FROM inventory $whereClause";
 $totalResult = $conn->query($totalQuery);
 $total = 0;
-
 if ($totalResult && $row = $totalResult->fetch_assoc()) {
     $total = intval($row['total']);
 }
 
-// Main data
-$sql = "SELECT * FROM inventory $whereClause ORDER BY inventory_id DESC LIMIT $limit OFFSET $offset";
+// Get inventory data
+$sql = "SELECT * FROM inventory $whereClause ORDER BY $sortField $sortOrder LIMIT $limit OFFSET $offset";
 $result = $conn->query($sql);
 
 $inventory = [];

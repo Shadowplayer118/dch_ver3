@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import AdminHeader from "./AdminHeader";
+import StaffHeader from "./StaffHeader";
 import * as XLSX from 'xlsx';
 
 import AddInventory_Modal from "../Modals_Folder/AddInventory_Modal";
@@ -8,8 +8,8 @@ import EditInventory_Modal from "../Modals_Folder/EditInventory_Modal";
 import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
 
 
-function InventoryTable() {
-  const [inventory, setInventory] = useState([]);
+function StaffInventoryTable() {
+    const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
     brand: "",
@@ -36,7 +36,14 @@ function InventoryTable() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showHistoryModal, setShowHistoryModal] = useState(false);
 
-  
+  const userType = localStorage.getItem('user_type');
+
+  const canEditOrDelete = (location) => {
+  if (userType === 'admin') return true;
+  if (userType === 'staff-wh' && location === 'WAREHOUSE') return true;
+  if (userType === 'staff-store' && location === 'STORE') return true;
+  return false;
+};
 
     const [selectedItem, setSelectedItem] = useState(null);
 
@@ -241,7 +248,7 @@ const handleExportFilteredToExcel = async () => {
 
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
-      <AdminHeader />
+      <StaffHeader />
 
       <button
         onClick={handleExportFilteredToExcel}
@@ -453,11 +460,25 @@ const handleExportFilteredToExcel = async () => {
                 <td>
 
                   
+                                {canEditOrDelete(item.location) ? (
+                <>
                   <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
                   <br />
                   <button onClick={() => handleViewHistory(item)}>History</button>
                   <br />
                   <button onClick={() => handleDelete(item.item_code)}>Delete</button>
+                </>
+              ) : (
+                <>
+                  <button disabled className="edit-btn" style={{ opacity: 0.5 }}>Edit</button>
+                  <br />
+                  <button onClick={() => handleViewHistory(item)}>History</button>
+                  <br />
+                  <button disabled style={{ opacity: 0.5 }}>Delete</button>
+                </>
+              )}
+
+
                 </td>
               </tr>
             ))
@@ -505,4 +526,4 @@ const handleExportFilteredToExcel = async () => {
   );
 }
 
-export default InventoryTable;
+export default StaffInventoryTable;

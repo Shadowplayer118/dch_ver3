@@ -44,7 +44,7 @@ if (!$stmt->fetch()) {
     echo json_encode(['error' => 'Inventory item not found.']);
     $stmt->close();
     exit();
-}
+}   
 $stmt->close();
 
 // Compute new units
