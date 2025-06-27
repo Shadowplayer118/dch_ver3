@@ -7,7 +7,6 @@ import AddInventory_Modal from "../Modals_Folder/AddInventory_Modal";
 import EditInventory_Modal from "../Modals_Folder/EditInventory_Modal";
 import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
 
-
 function SalesmanInventoryTable() {
   const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
@@ -47,7 +46,7 @@ const [sortOrder, setSortOrder] = useState("asc");
 const locationOptions = ["ALL", "STORE", "WAREHOUSE"];
 
 const [selectedLocation, setSelectedLocation] = useState(() => {
-  return localStorage.getItem("selectedLocation") || "ALL";
+  return localStorage.getItem("selectedLocation") || "STORE";
 });
 
 const handleLocationChange = () => {
@@ -334,6 +333,20 @@ const handleExportFilteredToExcel = async () => {
           <tr>
             <th></th>
             <th></th>
+                        <th>
+              <select
+                name="brand"
+                value={filters.brand}
+                onChange={handleFilterChange}
+              >
+                <option value="">All Brands</option>
+                {uniqueValues.brand.map((val, i) => (
+                  <option key={i} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </th>
             <th>
               <select
                 name="desc_1"
@@ -362,20 +375,7 @@ const handleExportFilteredToExcel = async () => {
                 ))}
               </select>
             </th>
-            <th>
-              <select
-                name="brand"
-                value={filters.brand}
-                onChange={handleFilterChange}
-              >
-                <option value="">All Brands</option>
-                {uniqueValues.brand.map((val, i) => (
-                  <option key={i} value={val}>
-                    {val}
-                  </option>
-                ))}
-              </select>
-            </th>
+
             <th>
               <select
                 name="category"
@@ -427,6 +427,8 @@ const handleExportFilteredToExcel = async () => {
                   />
                 </td>
                 <td>{item.item_code}</td>
+                <td>{item.brand}</td>
+
                 <td>
                   <div>
                     {item.desc_1} {item.desc_2}
@@ -435,7 +437,6 @@ const handleExportFilteredToExcel = async () => {
                     {item.desc_3} {item.desc_4}
                   </div>
                 </td>
-                <td>{item.brand}</td>
                 <td>{item.category}</td>
                 <td>
                   <div>{item.units}</div>

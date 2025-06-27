@@ -266,8 +266,8 @@ const handleDelete = async (inventory_id) => {
           <tr>
             <th>Image</th>
             <th>Item Code</th>
-            <th>Description</th>
             <th>Brand</th>
+            <th>Description</th>
             <th>Category</th>
             <th>Units</th>
             <th>Area</th>
@@ -277,6 +277,20 @@ const handleDelete = async (inventory_id) => {
           <tr>
             <th></th>
             <th></th>
+                        <th>
+              <select
+                name="brand"
+                value={filters.brand}
+                onChange={handleFilterChange}
+              >
+                <option value="">All Brands</option>
+                {uniqueValues.brand.map((val, i) => (
+                  <option key={i} value={val}>
+                    {val}
+                  </option>
+                ))}
+              </select>
+            </th>
             <th>
               <select
                 name="desc_1"
@@ -305,20 +319,7 @@ const handleDelete = async (inventory_id) => {
                 ))}
               </select>
             </th>
-            <th>
-              <select
-                name="brand"
-                value={filters.brand}
-                onChange={handleFilterChange}
-              >
-                <option value="">All Brands</option>
-                {uniqueValues.brand.map((val, i) => (
-                  <option key={i} value={val}>
-                    {val}
-                  </option>
-                ))}
-              </select>
-            </th>
+
             <th>
               <select
                 name="category"
@@ -369,7 +370,9 @@ const handleDelete = async (inventory_id) => {
                     style={{ width: "50px", height: "50px", objectFit: "cover" }}
                   />
                 </td>
+                
                 <td>{item.item_code}</td>
+                <td>{item.brand}</td>
                 <td>
                   <div>
                     {item.desc_1} {item.desc_2}
@@ -378,7 +381,7 @@ const handleDelete = async (inventory_id) => {
                     {item.desc_3} {item.desc_4}
                   </div>
                 </td>
-                <td>{item.brand}</td>
+
                 <td>{item.category}</td>
                 <td>
                   <div>{item.units}</div>

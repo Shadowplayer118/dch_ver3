@@ -267,6 +267,7 @@ const StockHistoryTable = () => {
             <th>From</th>
             <th>Date</th>
             <th>Encoder</th>
+            <th>Requesition Number</th>
           </tr>
         </thead>
         <tbody>
@@ -286,6 +287,7 @@ const StockHistoryTable = () => {
                 <td>{entry.location}</td>
                 <td>{entry.trans_date}</td>
                 <td>{entry.username}</td>
+                <td>{entry.requisition_number}</td>
               </tr>
             ))
           )}

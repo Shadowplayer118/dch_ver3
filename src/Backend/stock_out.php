@@ -70,7 +70,7 @@ $log->bind_param("ssss", $act_performed, $username, $user_type, $location);
 $log->execute();
 $log->close();
 
-// Stock history insert (MATCHING PARAMS)
+// Stock history insert
 $trans_type = "STOCK OUT";
 $prev_units = $units;
 
@@ -82,25 +82,22 @@ $hist = $conn->prepare("INSERT INTO stock_history (
 
 $hist->bind_param(
     "isiissssss",
-    $inventory_id,         // i
-    $trans_type,           // s
-    $quantity,             // i
-    $prev_units,           // i
-    $transaction_date,     // s
-    $username,             // s
-    $user_type,            // s
-    $location,             // s (trans_loc)
-    $item_code,            // s
-    $requisition_number    // s
+    $inventory_id,
+    $trans_type,
+    $quantity,
+    $prev_units,
+    $transaction_date,
+    $username,
+    $user_type,
+    $location,
+    $item_code,
+    $requisition_number
 );
-
-
 $hist->execute();
 $hist->close();
 
-
+// If from warehouse, transfer to store
 if (strtoupper($location) === 'WAREHOUSE') {
-    // Find the STORE entry with the same item_code
     $storeQuery = $conn->prepare("SELECT inventory_id, units FROM inventory WHERE item_code = ? AND location = 'STORE' LIMIT 1");
     $storeQuery->bind_param("s", $item_code);
     $storeQuery->execute();
@@ -110,14 +107,14 @@ if (strtoupper($location) === 'WAREHOUSE') {
         $storeQuery->close();
         $updated_store_units = $store_units + $quantity;
 
-        // Update the store units
         $updateStore = $conn->prepare("UPDATE inventory SET units = ?, last_updated = NOW() WHERE inventory_id = ?");
         $updateStore->bind_param("ii", $updated_store_units, $store_id);
         $updateStore->execute();
         $updateStore->close();
 
-        // Log store-side stock in
-        $trans_type_store = "STOCK IN (FROM WAREHOUSE)";
+        $trans_type_store = "STOCK IN";
+        $store_location = "STORE";
+
         $histStore = $conn->prepare("INSERT INTO stock_history (
             inventory_id, trans_type, trans_units, prev_units,
             trans_date, username, user_type,
@@ -126,27 +123,24 @@ if (strtoupper($location) === 'WAREHOUSE') {
 
         $histStore->bind_param(
             "isiissssss",
-            $store_id,              // i
-            $trans_type_store,      // s
-            $quantity,              // i
-            $store_units,           // i (previous units before update)
-            $transaction_date,      // s
-            $username,              // s
-            $user_type,             // s
-            'STORE',                // s
-            $item_code,             // s
-            $requisition_number     // s
+            $store_id,
+            $trans_type_store,
+            $quantity,
+            $store_units,
+            $transaction_date,
+            $username,
+            $user_type,
+            $store_location,
+            $item_code,
+            $requisition_number
         );
-
         $histStore->execute();
         $histStore->close();
     } else {
         $storeQuery->close();
-        // Optional logging if STORE item not found
         error_log("No matching STORE inventory for item_code: $item_code");
     }
 }
-
 
 // Response
 echo json_encode(['success' => true, 'message' => 'Stock out successful.']);

@@ -34,7 +34,8 @@ if ($search !== '') {
     $conditions[] = "(i.item_code LIKE '%$search%' 
                       OR i.desc_1 LIKE '%$search%' 
                       OR i.brand LIKE '%$search%'
-                      OR i.category LIKE '%$search%')";
+                      OR i.category LIKE '%$search%'
+                      OR s.requisition_number LIKE '%$search%')";
 }
 
 if ($trans_type !== '') {
@@ -74,7 +75,8 @@ $sql = "
         s.username,
         s.trans_units,
         s.location,
-        s.trans_date
+        s.trans_date,
+        s.requisition_number
     FROM stock_history s
     LEFT JOIN (
         SELECT inventory_id, item_code, desc_1, brand, category

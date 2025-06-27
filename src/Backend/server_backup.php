@@ -38,12 +38,6 @@ if (!is_writable($backupFolder)) {
     exit;
 }
 
-// DB Credentials
-// $host = 'localhost';
-// $user = 'root';
-// $pass = '';  // Your password if needed
-// $dbname = 'dch';
-
 include '../db.php';
 
 // Backup filename
