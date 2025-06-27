@@ -16,7 +16,6 @@ function getPost($conn, $key) {
     return isset($_POST[$key]) ? trim($conn->real_escape_string($_POST[$key])) : '';
 }
 
-// Required fields
 $inventory_id   = getPost($conn, 'inventory_id');
 $item_code      = getPost($conn, 'item_code');
 $brand          = getPost($conn, 'brand');
@@ -60,7 +59,7 @@ if (!empty($area)) {
 // Units update
 if ($units !== '') {
     $stmt = $conn->prepare("UPDATE inventory SET units = ?, last_updated = NOW() WHERE inventory_id = ?");
-    $stmt->bind_param('di', $units, $inventory_id); // Corrected 'ii'
+    $stmt->bind_param('di', $units, $inventory_id);
     if ($stmt->execute()) {
         $response[] = 'Units updated';
     } else {
@@ -84,7 +83,7 @@ if (isset($_FILES['img']) && $_FILES['img']['error'] === UPLOAD_ERR_OK) {
     move_uploaded_file($tmp_name, $upload_dir . $img);
 }
 
-// Inventory field update based on item_code
+// Inventory field update
 if ($img !== null) {
     $sql = "UPDATE inventory SET
         item_code = ?, brand = ?, category = ?, desc_1 = ?, desc_2 = ?, desc_3 = ?, desc_4 = ?,
@@ -116,6 +115,19 @@ if ($img !== null) {
 if ($stmt->execute()) {
     $response[] = 'Inventory details updated';
 
+    // ✅ Update stock_history
+    $update_stock_history = $conn->prepare("UPDATE stock_history SET item_code = ? WHERE item_code = ?");
+    $update_stock_history->bind_param('ss', $item_code, $original_item_code);
+    if ($update_stock_history->execute()) {
+        $response[] = 'Stock history item_code updated';
+    } else {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to update stock_history: ' . $update_stock_history->error]);
+        exit();
+    }
+    $update_stock_history->close();
+
+    // ✅ Log activity
     $act_performed = "Edited inventory item item code $item_code";
     $log_sql = "INSERT INTO activity_report (
         activity_type, table_performed, act_performed,

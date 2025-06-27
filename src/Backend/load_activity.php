@@ -20,6 +20,8 @@ $startDate = getParam($conn, 'start_date');
 $endDate = getParam($conn, 'end_date');
 
 $limit = isset($_GET['limit']) ? intval($_GET['limit']) : 100;
+$limit = min(max($limit, 1), 1000); // Ensure limit is between 1 and 1000
+
 $offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
 
 $conditions = [];

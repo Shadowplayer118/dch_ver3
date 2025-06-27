@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 
-function StaffHeader() {
+function SalesHeader() {
   const navigate = useNavigate(); // ✅ FIXED
 
   const handleLogout = () => {
@@ -13,14 +13,13 @@ function StaffHeader() {
     <header>
       <h1>DCH Inventory</h1>
       <nav>
-        <Link to="/StaffDashboard">Dashboard</Link>
-        <Link to="/StaffInventory">Inventory</Link>
-        <Link to="/StaffStockInOut">Stock In/Out</Link>
-        <Link to="/StaffStockHistoryTable">Stock History</Link>
+        <Link to="/SalesmanInventoryTable">Price List</Link>
+
+
       </nav>
       <button onClick={handleLogout}>Logout</button>
     </header>
   );
 }
 
-export default StaffHeader;
+export default SalesHeader;

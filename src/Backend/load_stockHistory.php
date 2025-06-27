@@ -15,22 +15,18 @@ function getParam($conn, $key) {
     return isset($_GET[$key]) ? trim($conn->real_escape_string($_GET[$key])) : '';
 }
 
-$search = getParam($conn, 'search');
+$search     = getParam($conn, 'search');
 $trans_type = getParam($conn, 'trans_type');
-$location = getParam($conn, 'location');
-$brand = getParam($conn, 'brand');
-$category = getParam($conn, 'category');
-$start = getParam($conn, 'start');
-$end = getParam($conn, 'end');
-
-$limit = isset($_GET['limit']) ? intval($_GET['limit']) : 500;
-$offset = isset($_GET['offset']) ? intval($_GET['offset']) : 0;
+$location   = getParam($conn, 'location');
+$brand      = getParam($conn, 'brand');
+$category   = getParam($conn, 'category');
+$start      = getParam($conn, 'start');
+$end        = getParam($conn, 'end');
 
 $conditions = [];
 
-$sort_by = getParam($conn, 'sort_by');
+$sort_by  = getParam($conn, 'sort_by');
 $sort_dir = strtoupper(getParam($conn, 'sort_dir')) === 'ASC' ? 'ASC' : 'DESC';
-
 $allowed_sort_columns = ['stock_id', 'trans_date', 'date_created'];
 $sort_column = in_array($sort_by, $allowed_sort_columns) ? $sort_by : 'trans_date';
 
@@ -67,25 +63,7 @@ if ($end !== '') {
 
 $whereClause = count($conditions) ? "WHERE " . implode(" AND ", $conditions) : "";
 
-// Get total count for pagination
-$totalQuery = "
-    SELECT COUNT(*) AS total 
-    FROM stock_history s
-    LEFT JOIN (
-        SELECT inventory_id, item_code, desc_1, brand, category
-        FROM inventory
-        WHERE is_deleted = 0
-        GROUP BY item_code
-    ) i ON s.item_code = i.item_code
-    $whereClause
-";
-$totalResult = $conn->query($totalQuery);
-$total = 0;
-if ($totalResult && $row = $totalResult->fetch_assoc()) {
-    $total = intval($row['total']);
-}
-
-// Main query
+// Main query with hardcoded LIMIT and no OFFSET
 $sql = "
     SELECT 
         i.item_code,
@@ -106,7 +84,7 @@ $sql = "
     ) i ON s.item_code = i.item_code
     $whereClause
     ORDER BY s.$sort_column $sort_dir
-    LIMIT $limit OFFSET $offset
+    LIMIT 1000
 ";
 
 $result = $conn->query($sql);
@@ -118,8 +96,7 @@ if ($result) {
     }
 
     echo json_encode([
-        'data' => $history,
-        'total' => $total
+        'data' => $history
     ]);
 } else {
     http_response_code(500);

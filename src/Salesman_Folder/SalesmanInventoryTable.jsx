@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import AdminHeader from "./AdminHeader";
+import SalesHeader from "./SalesmanHeader";
 import * as XLSX from 'xlsx';
 
 import AddInventory_Modal from "../Modals_Folder/AddInventory_Modal";
@@ -8,7 +8,7 @@ import EditInventory_Modal from "../Modals_Folder/EditInventory_Modal";
 import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
 
 
-function InventoryTable() {
+function SalesmanInventoryTable() {
   const [inventory, setInventory] = useState([]);
   const [filters, setFilters] = useState({
     search: "",
@@ -241,7 +241,7 @@ const handleExportFilteredToExcel = async () => {
 
   return (
     <div style={{ overflowX: "auto", padding: "1rem" }}>
-      <AdminHeader />
+      <SalesHeader />
 
       <button
         onClick={handleExportFilteredToExcel}
@@ -310,9 +310,9 @@ const handleExportFilteredToExcel = async () => {
       />
 
 
-      <button onClick={() => setIsAddOpen(true)} className="btn btn-primary">
+      {/* <button onClick={() => setIsAddOpen(true)} className="btn btn-primary">
       + Add New
-      </button>
+      </button> */}
 
       <table
         border="1"
@@ -329,7 +329,7 @@ const handleExportFilteredToExcel = async () => {
             <th>Units</th>
             <th>Area</th>
             <th>Prices</th>
-            <th>Actions</th>
+            {/* <th>Actions</th> */}
           </tr>
           <tr>
             <th></th>
@@ -450,7 +450,7 @@ const handleExportFilteredToExcel = async () => {
                   <div>Retail: ${item.retail_price}</div>
                   <div>TSV: {item.tsv}</div>
                 </td>
-                <td>
+                {/* <td>
 
                   
                   <button onClick={() => handleEditClick(item)} className="edit-btn">Edit</button>
@@ -458,7 +458,7 @@ const handleExportFilteredToExcel = async () => {
                   <button onClick={() => handleViewHistory(item)}>History</button>
                   <br />
                   <button onClick={() => handleDelete(item.item_code)}>Delete</button>
-                </td>
+                </td> */}
               </tr>
             ))
           )}
@@ -505,4 +505,4 @@ const handleExportFilteredToExcel = async () => {
   );
 }
 
-export default InventoryTable;
+export default SalesmanInventoryTable;

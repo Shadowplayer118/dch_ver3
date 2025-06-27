@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import AdminHeader from './AdminHeader';
 import * as XLSX from 'xlsx';
 
 const ActivityReportTable = () => {
@@ -137,7 +136,6 @@ const ActivityReportTable = () => {
 
   return (
     <div className="p-4 bg-white shadow-md rounded-lg overflow-x-auto">
-      <AdminHeader />
       <h2 className="text-xl font-bold mb-4">Activity Report</h2>
 
       <div className="flex flex-wrap gap-4 mb-4">

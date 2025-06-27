@@ -10,8 +10,12 @@ import StaffStockInOutTable from "./Staff_Folder/StaffStockInOut";
 import StaffStockHistoryTable from "./Staff_Folder/StaffStockHistoryTable";
 import InventoryTable from "./Admin_Folder/InventoryTable";
 
+import SalesmanInventoryTable from "./Salesman_Folder/SalesmanInventoryTable";
+
 
 import StaffInventoryTable from "./Staff_Folder/StaffInventory";
+
+import ServerDashboard from "./server";
 
 function AppRoutes() {
   return (
@@ -35,6 +39,13 @@ function AppRoutes() {
         <Route path="/StaffInventory" element={<StaffInventoryTable />} />
         <Route path="/StaffStockInOut" element={<StaffStockInOutTable />} />
         <Route path="/StaffStockHistoryTable" element={<StaffStockHistoryTable />} />
+
+
+        <Route path="/SalesmanInventoryTable" element={<SalesmanInventoryTable />} />
+
+        <Route path="/server" element={<ServerDashboard />} />
+
+
 
       </Routes>
     </Router>

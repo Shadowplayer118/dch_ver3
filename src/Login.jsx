@@ -24,6 +24,10 @@ function Login() {
           navigate("/AdminDashboard");
         } else if (data.user_type === "staff-wh" || data.user_type === "staff-store") {
           navigate("/StaffInventory");
+        } else if (data.user_type === "salesman") {
+          navigate("/SalesmanInventoryTable");
+        } else if (data.user_type === "server") {
+        navigate("/server");
         } else {
           alert("Unknown user type.");
         }

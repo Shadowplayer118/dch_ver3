@@ -6,10 +6,12 @@ header('Content-Type: application/json');
 // Set Philippine timezone
 date_default_timezone_set('Asia/Manila');
 
-$host = 'localhost';
-$username = 'root';
-$password = ''; // Leave blank if no password
-$database = 'dch';
+// $host = 'localhost';
+// $user = 'root';
+// $pass = ''; // Leave blank if no pass
+// $dbname = 'dch';
+
+include '../db.php';
 
 // Set filename with PH time
 $filename = "backup_" . date("Y-m-d_H-i-s") . ".sql";
@@ -27,10 +29,10 @@ $backupFilePath = $backupDir . DIRECTORY_SEPARATOR . $filename;
 $mysqldumpPath = 'D:\\Downloads\\Xamp_Folder\\mysql\\bin\\mysqldump.exe';
 
 // Escape everything properly and run the command in the right working directory
-if ($password === '') {
-    $command = "cmd /c \"cd /d D:\\Downloads\\Xamp_Folder\\mysql\\bin && mysqldump --user={$username} --host={$host} {$database} > \"{$backupFilePath}\"\"";
+if ($pass === '') {
+    $command = "cmd /c \"cd /d D:\\Downloads\\Xamp_Folder\\mysql\\bin && mysqldump --user={$user} --host={$host} {$dbname} > \"{$backupFilePath}\"\"";
 } else {
-    $command = "cmd /c \"cd /d D:\\Downloads\\Xamp_Folder\\mysql\\bin && mysqldump --user={$username} --password={$password} --host={$host} {$database} > \"{$backupFilePath}\"\"";
+    $command = "cmd /c \"cd /d D:\\Downloads\\Xamp_Folder\\mysql\\bin && mysqldump --user={$user} --pass={$pass} --host={$host} {$dbname} > \"{$backupFilePath}\"\"";
 }
 
 // Execute the command
