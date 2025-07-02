@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import AdminHeader from './AdminHeader';
 
-// Days order fixed to Monday - Sunday
 const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
 const InventorySummary = () => {
@@ -10,9 +9,7 @@ const InventorySummary = () => {
   const [summary, setSummary] = useState({ item_count: 0, total_value: 0, stock_in_today: 0, stock_out_today: 0 });
   const [loading, setLoading] = useState(true);
 
-
   const locationCycle = ['ALL', 'WAREHOUSE', 'STORE'];
-
 
   const toggleLocation = () => {
     const currentIndex = locationCycle.indexOf(location);
@@ -27,10 +24,17 @@ const InventorySummary = () => {
         const res = await axios.get('http://localhost/dch_ver3/src/Backend/inventory_summary.php', {
           params: { location },
         });
+        
+        // Add minimum loading time of 1.5 seconds
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         setSummary(res.data);
       } catch (err) {
         console.error('Error loading inventory summary:', err);
         setSummary({ item_count: 0, total_value: 0, stock_in_today: 0, stock_out_today: 0 });
+        
+        // Still apply minimum loading time even on error
+        await new Promise(resolve => setTimeout(resolve, 1500));
       } finally {
         setLoading(false);
       }
@@ -40,35 +44,48 @@ const InventorySummary = () => {
   }, [location]);
 
   return (
-    <div className="bg-white p-4 rounded shadow">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-semibold">Inventory Summary</h2>
-        <button
-          className="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
-          onClick={toggleLocation}
-        >
-          Location: {location}
+    <div className="glass-card inventory-summary">
+      <div className="card-header">
+        <h2 className="card-title">Inventory Summary</h2>
+        <button className="glass-button location-toggle" onClick={toggleLocation}>
+          <span className="button-label">Location:</span>
+          <span className="button-value">{location}</span>
         </button>
       </div>
       {loading ? (
-        <p>Loading summary...</p>
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading summary...</p>
+        </div>
       ) : (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-gray-100 p-3 rounded">
-            <p className="font-semibold">Total Items</p>
-            <p className="text-xl">{summary.item_count}</p>
+        <div className="summary-grid">
+          <div className="summary-item">
+            <div className="summary-icon">📦</div>
+            <div className="summary-content">
+              <p className="summary-label">Total Items</p>
+              <p className="summary-value">{summary.item_count}</p>
+            </div>
           </div>
-          <div className="bg-gray-100 p-3 rounded">
-            <p className="font-semibold">Total Stock Value (TSV)</p>
-            <p className="text-xl">₱ {parseFloat(summary.total_value).toFixed(2)}</p>
+          <div className="summary-item">
+            <div className="summary-icon">💰</div>
+            <div className="summary-content">
+              <p className="summary-label">Total Stock Value</p>
+              <p className="summary-value">₱ {parseFloat(summary.total_value).toFixed(2)}</p>
+            </div>
           </div>
-          <div className="bg-gray-100 p-3 rounded">
-            <p className="font-semibold">Stock-Ins Today</p>
-            <p className="text-xl">{summary.stock_in_today}</p>
+          <div className="summary-item">
+            <div className="summary-icon">📥</div>
+            <div className="summary-content">
+              <p className="summary-label">Stock-Ins Today</p>
+              <p className="summary-value">{summary.stock_in_today}</p>
+            </div>
           </div>
-          <div className="bg-gray-100 p-3 rounded">
-            <p className="font-semibold">Stock-Outs Today</p>
-            <p className="text-xl">{summary.stock_out_today}</p>
+          <div className="summary-item">
+            <div className="summary-icon">📤</div>
+            <div className="summary-content">
+              <p className="summary-label">Stock-Outs Today</p>
+              <p className="summary-value">{summary.stock_out_today}</p>
+            </div>
           </div>
         </div>
       )}
@@ -107,10 +124,17 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
             yearweek: yearweek || '',
           },
         });
+        
+        // Add minimum loading time of 1.2 seconds
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        
         setData(response.data);
       } catch (error) {
         console.error('Error fetching weekly activity report:', error);
         setData([]);
+        
+        // Still apply minimum loading time even on error
+        await new Promise(resolve => setTimeout(resolve, 1200));
       } finally {
         setLoading(false);
       }
@@ -156,53 +180,64 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
     stock_out: (totals.stock_out / 7).toFixed(2),
   };
 
-  if (loading) return <p>Loading activity report...</p>;
+  if (loading) {
+    return (
+      <div className="glass-card">
+        <div className="loading-state">
+          <div className="loading-spinner"></div>
+          <p>Loading activity report...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="overflow-x-auto mt-6 max-w-7xl mx-auto p-4 bg-white rounded shadow">
-      <h2 className="text-xl font-semibold mb-4">Weekly Activity Report</h2>
-      <table className="min-w-full border border-gray-300" style={{ borderCollapse: 'collapse' }}>
-        <thead className="bg-gray-200">
-          <tr>
-            <th className="border border-gray-300 px-3 py-2 text-left">Day</th>
-            <th className="border border-gray-300 px-3 py-2 text-left">Date</th>
-            <th className="border border-gray-300 px-3 py-2 text-center">Insert</th>
-            <th className="border border-gray-300 px-3 py-2 text-center">Update</th>
-            <th className="border border-gray-300 px-3 py-2 text-center">Delete</th>
-            <th className="border border-gray-300 px-3 py-2 text-center">Stock In</th>
-            <th className="border border-gray-300 px-3 py-2 text-center">Stock Out</th>
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map(({ day_name, day_date, insert_count, update_count, delete_count, stock_in_count, stock_out_count }) => (
-            <tr key={day_name} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-3 py-2">{day_name}</td>
-              <td className="border border-gray-300 px-3 py-2">{day_date || '-'}</td>
-              <td className="border border-gray-300 px-3 py-2 text-center">{insert_count}</td>
-              <td className="border border-gray-300 px-3 py-2 text-center">{update_count}</td>
-              <td className="border border-gray-300 px-3 py-2 text-center">{delete_count}</td>
-              <td className="border border-gray-300 px-3 py-2 text-center">{stock_in_count}</td>
-              <td className="border border-gray-300 px-3 py-2 text-center">{stock_out_count}</td>
+    <div className="glass-card weekly-report">
+      <h2 className="card-title">Weekly Activity Report</h2>
+      <div className="table-container">
+        <table className="glass-table">
+          <thead>
+            <tr>
+              <th>Day</th>
+              <th>Date</th>
+              <th>Insert</th>
+              <th>Update</th>
+              <th>Delete</th>
+              <th>Stock In</th>
+              <th>Stock Out</th>
             </tr>
-          ))}
-          <tr className="font-semibold bg-gray-100">
-            <td colSpan={2} className="border border-gray-300 px-3 py-2 text-right">Total</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{totals.insert}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{totals.update}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{totals.delete}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{totals.stock_in}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{totals.stock_out}</td>
-          </tr>
-          <tr className="font-semibold bg-gray-50">
-            <td colSpan={2} className="border border-gray-300 px-3 py-2 text-right">Average per day</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{average.insert}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{average.update}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{average.delete}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{average.stock_in}</td>
-            <td className="border border-gray-300 px-3 py-2 text-center">{average.stock_out}</td>
-          </tr>
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map(({ day_name, day_date, insert_count, update_count, delete_count, stock_in_count, stock_out_count }) => (
+              <tr key={day_name} className="table-row">
+                <td className="day-cell">{day_name}</td>
+                <td>{day_date || '-'}</td>
+                <td className="number-cell">{insert_count}</td>
+                <td className="number-cell">{update_count}</td>
+                <td className="number-cell">{delete_count}</td>
+                <td className="number-cell">{stock_in_count}</td>
+                <td className="number-cell">{stock_out_count}</td>
+              </tr>
+            ))}
+            <tr className="total-row">
+              <td colSpan={2} className="total-label">Total</td>
+              <td className="number-cell total-value">{totals.insert}</td>
+              <td className="number-cell total-value">{totals.update}</td>
+              <td className="number-cell total-value">{totals.delete}</td>
+              <td className="number-cell total-value">{totals.stock_in}</td>
+              <td className="number-cell total-value">{totals.stock_out}</td>
+            </tr>
+            <tr className="average-row">
+              <td colSpan={2} className="average-label">Average per day</td>
+              <td className="number-cell average-value">{average.insert}</td>
+              <td className="number-cell average-value">{average.update}</td>
+              <td className="number-cell average-value">{average.delete}</td>
+              <td className="number-cell average-value">{average.stock_in}</td>
+              <td className="number-cell average-value">{average.stock_out}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 };
@@ -210,21 +245,21 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
 const AdminDashboard = () => {
   const [selectedUser, setSelectedUser] = useState('');
   const [selectedWeek, setSelectedWeek] = useState('');
-    const [users, setUsers] = useState([]);
+  const [users, setUsers] = useState([]);
 
-useEffect(() => {
-  const fetchUsers = async () => {
-    try {
-      const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_user.php');
-      setUsers(res.data);
-    } catch (error) {
-      console.error('Failed to load users:', error);
-      setUsers([{ username: '', name: 'All Users' }]); // fallback
-    }
-  };
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_user.php');
+        setUsers(res.data);
+      } catch (error) {
+        console.error('Failed to load users:', error);
+        setUsers([{ username: '', name: 'All Users' }]); // fallback
+      }
+    };
 
-  fetchUsers();
-}, []);
+    fetchUsers();
+  }, []);
 
   const handleWeekChange = (e) => {
     setSelectedWeek(e.target.value);
@@ -239,48 +274,57 @@ useEffect(() => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="dashboard-container">
       <AdminHeader />
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+      <div className="dashboard-content">
         <InventorySummary />
-        <div>
+        
+        <div className="action-buttons">
           <button
             onClick={() => window.open('/ActivityReport', '_blank')}
-            className="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700"
+            className="glass-button primary-button"
           >
+            <span className="button-icon">📊</span>
             Open Activity Report
           </button>
           <button
             onClick={handleExportDatabase}
-            className="ml-4 bg-green-600 text-white px-4 py-2 rounded shadow hover:bg-green-700"
+            className="glass-button secondary-button"
           >
+            <span className="button-icon">💾</span>
             Export Database
           </button>
         </div>
-        <div className="flex items-center gap-4">
-          <label className="font-semibold">
-            Select User:
-            <select
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-              value={selectedUser}
-              onChange={handleUserChange}
-            >
-              {users.map(({ username, name }) => (
-                <option key={username} value={username}>{name}</option>
-              ))}
-            </select>
-          </label>
-          <label className="font-semibold">
-            Select Week:
-            <input
-              type="date"
-              className="ml-2 border border-gray-300 rounded px-2 py-1"
-              value={selectedWeek}
-              onChange={handleWeekChange}
-            />
-            <small className="block text-gray-500 text-xs">Pick any date within the desired week</small>
-          </label>
+        
+        <div className="filters-container">
+          <div className="filter-group">
+            <label className="filter-label">
+              <span className="label-text">Select User:</span>
+              <select
+                className="glass-select"
+                value={selectedUser}
+                onChange={handleUserChange}
+              >
+                {users.map(({ username, name }) => (
+                  <option key={username} value={username}>{name}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="filter-group">
+            <label className="filter-label">
+              <span className="label-text">Select Week:</span>
+              <input
+                type="date"
+                className="glass-input"
+                value={selectedWeek}
+                onChange={handleWeekChange}
+              />
+              <small className="input-hint">Pick any date within the desired week</small>
+            </label>
+          </div>
         </div>
+        
         <WeeklyActivityReport selectedUser={selectedUser} selectedWeek={selectedWeek} />
       </div>
     </div>

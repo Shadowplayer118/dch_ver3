@@ -17,7 +17,7 @@ function Login() {
     setShowError(true);
     setTimeout(() => {
       setShowError(false);
-    }, 5000);
+    }, 5000); // Auto hide after 5s
   };
 
   const hideError = () => {
@@ -32,7 +32,7 @@ function Login() {
 
     setIsLoading(true);
     setError("");
-    
+
     try {
       const res = await fetch("http://localhost/dch_ver3/src/login.php", {
         method: "POST",
@@ -46,25 +46,34 @@ function Login() {
         localStorage.setItem("username", data.username);
         localStorage.setItem("user_type", data.user_type);
 
-        if (data.user_type === "admin") {
-          navigate("/AdminDashboard");
-        } else if (data.user_type === "staff-wh" || data.user_type === "staff-store") {
-          navigate("/StaffInventory");
-        } else if (data.user_type === "salesman") {
-          navigate("/SalesmanInventoryTable");
-        } else if (data.user_type === "server") {
-          navigate("/server");
-        } else {
-          showErrorMessage("Unknown user type.");
-        }
+        // Delay for success
+        setTimeout(() => {
+          if (data.user_type === "admin") {
+            navigate("/AdminDashboard");
+          } else if (data.user_type === "staff-wh" || data.user_type === "staff-store") {
+            navigate("/StaffInventory");
+          } else if (data.user_type === "salesman") {
+            navigate("/SalesmanInventoryTable");
+          } else if (data.user_type === "server") {
+            navigate("/server");
+          } else {
+            showErrorMessage("Unknown user type.");
+            setIsLoading(false);
+          }
+        }, 1000);
       } else {
-        showErrorMessage(data.message || "Login failed");
+        // Show loading for 800ms before error
+        setTimeout(() => {
+          setIsLoading(false);
+          showErrorMessage(data.message || "Login failed");
+        }, 700);
       }
     } catch (err) {
-      showErrorMessage("Server error. Please try again.");
+      setTimeout(() => {
+        setIsLoading(false);
+        showErrorMessage("Server error. Please try again.");
+      }, 800);
       console.error(err);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -77,7 +86,7 @@ function Login() {
   return (
     <div className="login-container">
       <div className="background-overlay"></div>
-      
+
       <div className="floating-shapes">
         <div className="shape-1"></div>
         <div className="shape-2"></div>
@@ -114,7 +123,7 @@ function Login() {
       <div className="card-container">
         <div className={`login-card ${isLoading ? 'loading' : ''}`}>
           <div className="card-glow"></div>
-          
+
           <div className="login-header">
             <div className="icon-container">
               <Package size={40} color="white" />
@@ -128,9 +137,9 @@ function Login() {
             <div className="field-group">
               <label className="field-label">Username</label>
               <div className="input-container">
-                <User 
-                  size={20} 
-                  className={`input-icon ${focusedField === 'username' ? 'focused' : ''}`} 
+                <User
+                  size={20}
+                  className={`input-icon ${focusedField === 'username' ? 'focused' : ''}`}
                 />
                 <input
                   type="text"
@@ -149,9 +158,9 @@ function Login() {
             <div className="field-group">
               <label className="field-label">Password</label>
               <div className="input-container">
-                <Lock 
-                  size={20} 
-                  className={`input-icon ${focusedField === 'password' ? 'focused' : ''}`} 
+                <Lock
+                  size={20}
+                  className={`input-icon ${focusedField === 'password' ? 'focused' : ''}`}
                 />
                 <input
                   type={showPassword ? "text" : "password"}
