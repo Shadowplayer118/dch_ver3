@@ -143,136 +143,135 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
-        <h2>Edit Item</h2>
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
-          <input name="item_code" value={formData.item_code} readOnly />
+    <div className="editinv-modal-backdrop">
+      <div className="editinv-modal-content">
+        <h2 className="editinv-title">Edit Item</h2>
 
-          {[
-            ['Description 1 (Name)', 'desc_1'],
-            ['Description 2 (Measurement)', 'desc_2'],
-            ['Description 3 (Item Code)', 'desc_3'],
-            ['Description 4 (Other Details)', 'desc_4'],
-          ].map(([label, name]) => (
-            <div className="form-group" key={name}>
-              <label>{label}</label>
-              <input
-                type="text"
-                name={name}
-                value={formData[name] || ''}
-                onChange={handleChange}
-                autoComplete="off"
+        <form onSubmit={handleSubmit} encType="multipart/form-data" className="editinv-form">
+          {/* Left Side - Image Section */}
+          <div className="editinv-image-section">
+            <div className="editinv-group">
+              <label>Item Image</label>
+              <input 
+                type="file" 
+                accept="image/*" 
+                onChange={handleImageChange} 
+                autoComplete="off" 
+                className="editinv-file-input" 
               />
             </div>
-          ))}
-
-          {[
-            ['Brand', 'brand', 'brand-list', options.brand],
-            ['Category', 'category', 'category-list', options.category],
-          ].map(([label, name, listId, list]) => (
-            <div className="form-group" key={name}>
-              <label>{label}</label>
-              <input
-                type="text"
-                name={name}
-                list={listId}
-                value={formData[name] || ''}
-                onChange={handleChange}
-                autoComplete="off"
-              />
-              <datalist id={listId}>
-                {list.map((item, idx) => (
-                  <option key={idx} value={item} />
-                ))}
-              </datalist>
-            </div>
-          ))}
-
-          {[
-            ['Store Units', 'units'],
-            ['Fixed Price', 'fixed_price'],
-            ['Retail Price', 'retail_price'],
-          ].map(([label, name]) => (
-            <div className="form-group" key={name}>
-              <label>{label}</label>
-              <input
-                type="number"
-                name={name}
-                value={formData[name] || ''}
-                onChange={handleChange}
-                step="0.01"
-                autoComplete="off"
-              />
-            </div>
-          ))}
-
-          <div className="form-group">
-            <label>Location</label>
-            <input type="text" value={formData.location} readOnly />
-          </div>
-
-          <div className="form-group">
-            <label>Store Area</label>
-            <input
-              type="text"
-              name="area"
-              list="area-list"
-              value={formData.area || ''}
-              onChange={handleChange}
-              disabled={!formData.location}
-              autoComplete="off"
-            />
-            <datalist id="area-list">
-              {options.area
-                .filter((area) =>
-                  formData.location === 'STORE'
-                    ? area.toUpperCase().includes('STORE')
-                    : formData.location === 'WAREHOUSE'
-                    ? !area.toUpperCase().includes('STORE')
-                    : false
-                )
-                .map((item, idx) => (
-                  <option key={idx} value={item} />
-                ))}
-            </datalist>
-          </div>
-
-          <div className="form-group">
-            <label>Thresh Hold</label>
-            <input
-              type="number"
-              name="thresh_hold"
-              value={formData.thresh_hold || ''}
-              onChange={handleChange}
-              autoComplete="off"
-            />
-          </div>
-
-          <div className="form-group">
-            <label>Item Image</label>
-            <input type="file" accept="image/*" onChange={handleImageChange} autoComplete="off" />
-            <div style={{ marginTop: '10px' }}>
-              <img
-                src={previewImage}
-                alt="Preview"
-                style={{
-                  width: '120px',
-                  height: '120px',
-                  objectFit: 'cover',
-                  border: '1px solid #ccc',
-                }}
-              />
+            <div className="editinv-image-preview">
+              <img src={previewImage} alt="Preview" className="editinv-preview-img" />
             </div>
           </div>
 
-          <div className="modal-actions">
-            <button type="submit">Update</button>
-            <button type="button" onClick={onClose} className="cancel-btn">
-              Cancel
-            </button>
+          {/* Right Side - Form Fields */}
+          <div className="editinv-fields-section">
+            <div className="editinv-group">
+              <label className="editinv-label">Item Code</label>
+              <input type="text" name="item_code" value={formData.item_code} readOnly className="editinv-input" />
+            </div>
+
+            {/* Description 1 and 2 in same row */}
+            <div className="editinv-row">
+              <div className="editinv-group">
+                <label>Description 1 (Name)</label>
+                <input type="text" name="desc_1" value={formData.desc_1 || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+              <div className="editinv-group">
+                <label>Description 2 (Measurement)</label>
+                <input type="text" name="desc_2" value={formData.desc_2 || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+            </div>
+
+            {/* Description 3 and 4 in same row */}
+            <div className="editinv-row">
+              <div className="editinv-group">
+                <label>Description 3 (Item Code)</label>
+                <input type="text" name="desc_3" value={formData.desc_3 || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+              <div className="editinv-group">
+                <label>Description 4 (Other Details)</label>
+                <input type="text" name="desc_4" value={formData.desc_4 || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+            </div>
+
+            {/* Brand, Category, and Units in same row */}
+            <div className="editinv-row editinv-row-triple">
+              <div className="editinv-group">
+                <label>Brand</label>
+                <input type="text" name="brand" list="brand-list" value={formData.brand || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+                <datalist id="brand-list">
+                  {options.brand.map((item, idx) => <option key={idx} value={item} />)}
+                </datalist>
+              </div>
+              <div className="editinv-group">
+                <label>Category</label>
+                <input type="text" name="category" list="category-list" value={formData.category || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+                <datalist id="category-list">
+                  {options.category.map((item, idx) => <option key={idx} value={item} />)}
+                </datalist>
+              </div>
+              <div className="editinv-group">
+                <label>Store Units</label>
+                <input type="number" name="units" value={formData.units || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+            </div>
+
+            {/* Fixed Price and Retail Price in same row */}
+            <div className="editinv-row">
+              <div className="editinv-group">
+                <label>Fixed Price</label>
+                <input type="number" name="fixed_price" value={formData.fixed_price || ''} onChange={handleChange} step="0.01" autoComplete="off" className="editinv-input" />
+              </div>
+              <div className="editinv-group">
+                <label>Retail Price</label>
+                <input type="number" name="retail_price" value={formData.retail_price || ''} onChange={handleChange} step="0.01" autoComplete="off" className="editinv-input" />
+              </div>
+            </div>
+
+            {/* Location, Store Area, and Threshold in same row */}
+            <div className="editinv-row editinv-row-triple">
+              <div className="editinv-group">
+                <label>Location</label>
+                <input type="text" name="location" value={formData.location} readOnly className="editinv-input" />
+              </div>
+              <div className="editinv-group">
+                <label>Store Area</label>
+                <input
+                  type="text"
+                  name="area"
+                  list="store-area-list"
+                  value={formData.area || ''}
+                  onChange={handleChange}
+                  disabled={!formData.location}
+                  autoComplete="off"
+                  className="editinv-input"
+                />
+                <datalist id="store-area-list">
+                  {options.area
+                    .filter(area =>
+                      formData.location === "STORE"
+                        ? area.toUpperCase().includes("STORE")
+                        : formData.location === "WAREHOUSE"
+                          ? !area.toUpperCase().includes("STORE")
+                          : false
+                    )
+                    .map((item, idx) => <option key={idx} value={item} />)}
+                </datalist>
+              </div>
+              <div className="editinv-group">
+                <label>Thresh Hold</label>
+                <input type="number" name="thresh_hold" value={formData.thresh_hold || ''} onChange={handleChange} autoComplete="off" className="editinv-input" />
+              </div>
+            </div>
           </div>
         </form>
+
+        <div className="editinv-actions">
+          <button type="button" onClick={onClose} className="editinv-cancel-btn">Cancel</button>
+          <button type="submit" onClick={handleSubmit} className="editinv-submit-btn">Update</button>
+        </div>
       </div>
     </div>
   );

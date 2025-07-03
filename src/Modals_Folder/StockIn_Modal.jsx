@@ -51,57 +51,148 @@ const StockIn_Modal = ({ isOpen, onClose, itemData }) => {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
-        <h2>Stock In Item</h2>
-        <div className="item-details">
-          <p><strong>Item Code:</strong> {formData.item_code}</p>
-          <p><strong>Name:</strong> {formData.desc_1}</p>
-          <p><strong>Brand:</strong> {formData.brand}</p>
-          <p><strong>Category:</strong> {formData.category}</p>
-          <p><strong>Current Units:</strong> {formData.units}</p>
-        </div>
+    <div className="stockin-modal-backdrop">
+      <div className="stockin-modal-content">
+        <h2 className="stockin-title">Stock In Item</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Location</label>
-            <input type="text" value={formData.location || ''} readOnly />
+        <form onSubmit={handleSubmit} className="stockin-form">
+          {/* Left Side - Item Image Section */}
+          <div className="stockin-image-section">
+            <div className="stockin-group">
+              <label>Item Image</label>
+            </div>
+            <div className="stockin-image-preview">
+              <img 
+                src={formData.image_path || 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'} 
+                alt="Item Preview" 
+                className="stockin-preview-img" 
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Quantity to Stock In</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              required
-            />
-          </div>
+          {/* Right Side - Form Fields */}
+          <div className="stockin-fields-section">
+            {/* Item Code */}
+            <div className="stockin-group">
+              <label className="stockin-label">Item Code</label>
+              <input 
+                type="text" 
+                value={formData.item_code || ''} 
+                readOnly 
+                className="stockin-input" 
+              />
+            </div>
 
-          <div className="form-group">
-            <label>Date of Transaction</label>
-            <input
-              type="date"
-              onChange={(e) => setTransactionDate(e.target.value)}
-              required
-            />
-          </div>
+            {/* Item Name and Brand in same row */}
+            <div className="stockin-row">
+              <div className="stockin-group">
+                <label>Item Name</label>
+                <input 
+                  type="text" 
+                  value={formData.desc_1 || ''} 
+                  readOnly 
+                  className="stockin-input" 
+                />
+              </div>
+              <div className="stockin-group">
+                <label>Brand</label>
+                <input 
+                  type="text" 
+                  value={formData.brand || ''} 
+                  readOnly 
+                  className="stockin-input" 
+                />
+              </div>
+            </div>
 
-          <div className="form-group">
-            <label>Requisition Number</label>
-            <input
-              type="text"
-              value={reqnumber}
-              onChange={(e) => setReqnumber(e.target.value)}
-            />
-          </div>
+            {/* Category and Current Units in same row */}
+            <div className="stockin-row">
+              <div className="stockin-group">
+                <label>Category</label>
+                <input 
+                  type="text" 
+                  value={formData.category || ''} 
+                  readOnly 
+                  className="stockin-input" 
+                />
+              </div>
+              <div className="stockin-group">
+                <label>Current Units</label>
+                <input 
+                  type="text" 
+                  value={formData.units || '0'} 
+                  readOnly 
+                  className="stockin-input" 
+                />
+              </div>
+            </div>
 
-          <div className="modal-actions">
-            <button type="submit">Confirm</button>
-            <button type="button" onClick={onClose} className="cancel-btn">Cancel</button>
+            {/* Location */}
+            <div className="stockin-group">
+              <label>Location</label>
+              <input 
+                type="text" 
+                value={formData.location || ''} 
+                readOnly 
+                className="stockin-input" 
+              />
+            </div>
+
+            {/* Quantity to Stock In and Date in same row */}
+            <div className="stockin-row">
+              <div className="stockin-group">
+                <label>Quantity to Stock In</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  required
+                  autoComplete="off"
+                  className="stockin-input"
+                />
+              </div>
+              <div className="stockin-group">
+                <label>Date of Transaction</label>
+                <input
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                  required
+                  className="stockin-input"
+                />
+              </div>
+            </div>
+
+            {/* Requisition Number */}
+            <div className="stockin-group">
+              <label>Requisition Number</label>
+              <input
+                type="text"
+                value={reqnumber}
+                onChange={(e) => setReqnumber(e.target.value)}
+                autoComplete="off"
+                className="stockin-input"
+              />
+            </div>
+
+            {/* New Units After Stock In (calculated display) */}
+            <div className="stockin-group">
+              <label>New Units After Stock In</label>
+              <input
+                type="text"
+                value={quantity ? (parseInt(formData.units || 0) + parseInt(quantity)).toString() : formData.units || '0'}
+                readOnly
+                className="stockin-input"
+              />
+            </div>
           </div>
         </form>
+
+        <div className="stockin-actions">
+          <button type="button" onClick={onClose} className="stockin-cancel-btn">Cancel</button>
+          <button type="submit" onClick={handleSubmit} className="stockin-submit-btn">Confirm Stock In</button>
+        </div>
       </div>
     </div>
   );

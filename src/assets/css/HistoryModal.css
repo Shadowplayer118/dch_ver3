@@ -1,0 +1,580 @@
+/* Stock History Modal - Enhanced Dark Glassmorphism Style */
+:root {
+  --gradient-light-1: #667eea;
+  --gradient-light-2: #764ba2;
+  --gradient-dark-1: #1a1a2e;
+  --gradient-dark-2: #16213e;
+  --gradient-dark-3: #0f3460;
+  --primary-blue: #2196f3;
+  --primary-blue-light: #21cbf3;
+  --primary-blue-alpha-3: rgba(33, 150, 243, 0.3);
+  --primary-blue-alpha-4: rgba(33, 150, 243, 0.4);
+  --primary-blue-alpha-5: rgba(33, 150, 243, 0.5);
+  --secondary-green: #4caf50;
+  --secondary-green-dark: #388e3c;
+  --secondary-green-alpha-3: rgba(76, 175, 80, 0.3);
+  --secondary-green-alpha-4: rgba(76, 175, 80, 0.4);
+  --secondary-red: #f44336;
+  --secondary-red-dark: #d32f2f;
+  --secondary-red-alpha-3: rgba(244, 67, 54, 0.3);
+}
+
+/* Modal Backdrop - Enhanced darkness */
+.stockhist-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3); 
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Modal Content - Much darker glass with better contrast */
+.stockhist-modal-content {
+  background: rgba(20, 20, 30, 0.85); 
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 20px;
+  box-shadow: 
+    0 12px 40px rgba(0, 0, 0, 0.6), 
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  max-width: 1200px;
+  width: 100%;
+  height: auto;
+  max-height: 95vh;
+  overflow-y: auto;
+  padding: 24px;
+  position: relative;
+  animation: slideUp 0.4s ease-out;
+  display: flex;
+  flex-direction: column;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Title - Enhanced visibility */
+.stockhist-title {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #ffffff;
+  margin-bottom: 16px;
+  text-align: center;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.8);
+  background: linear-gradient(135deg, var(--primary-blue-light), var(--primary-blue));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Form - Compact with Better Layout */
+.stockhist-form {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 20px;
+}
+
+/* Left side - Item Details */
+.stockhist-details-section {
+  flex: 0 0 350px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Right side - Filter fields */
+.stockhist-fields-section {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+}
+
+/* Row Layout - Optimized spacing */
+.stockhist-row {
+  display: flex;
+  gap: 14px;
+  align-items: flex-end;
+}
+
+.stockhist-row .stockhist-group {
+  flex: 1;
+}
+
+.stockhist-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Labels - Enhanced visibility */
+.stockhist-label,
+.stockhist-group label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 2px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Input Fields - Darker background with better contrast */
+.stockhist-input {
+  background: rgba(40, 40, 55, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+  color: #ffffff;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  min-width: 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stockhist-input:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 
+    0 0 0 2px var(--primary-blue-alpha-3),
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  background: rgba(50, 50, 70, 0.9);
+  transform: translateY(-1px);
+}
+
+.stockhist-input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Item Details Section */
+.stockhist-item-details {
+  background: rgba(30, 30, 45, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.stockhist-item-details p {
+  margin: 6px 0;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stockhist-item-details strong {
+  color: var(--primary-blue-light);
+  font-weight: 600;
+}
+
+/* Discrepancy Section */
+.stockhist-discrepancy {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(40, 40, 60, 0.7);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stockhist-discrepancy p {
+  margin: 4px 0;
+  font-size: 0.8rem;
+}
+
+/* Table Section */
+.stockhist-table-section {
+  flex: 1;
+  min-height: 0;
+  margin-bottom: 20px;
+}
+
+/* Table Styles */
+.stockhist-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: rgba(30, 30, 45, 0.6);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stockhist-table thead {
+  background: rgba(40, 40, 60, 0.8);
+}
+
+.stockhist-table th {
+  padding: 12px 16px;
+  text-align: left;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+.stockhist-table td {
+  padding: 12px 16px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.85rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.stockhist-table tbody tr:hover {
+  background: rgba(50, 50, 70, 0.5);
+}
+
+.stockhist-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* Pagination */
+.stockhist-pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgba(30, 30, 45, 0.6);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stockhist-pagination-btn {
+  padding: 8px 16px;
+  background: rgba(40, 40, 60, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stockhist-pagination-btn:hover:not(:disabled) {
+  background: rgba(60, 60, 80, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.stockhist-pagination-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.stockhist-pagination-info {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.8rem;
+  font-weight: 500;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Action Buttons */
+.stockhist-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  align-self: stretch;
+  flex-shrink: 0;
+}
+
+.stockhist-export-btn,
+.stockhist-cancel-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  position: relative;
+  overflow: hidden;
+  min-width: 90px;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+.stockhist-export-btn {
+  background: linear-gradient(135deg, var(--primary-blue), var(--primary-blue-light));
+  color: white;
+  box-shadow: 
+    0 4px 12px var(--primary-blue-alpha-3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.stockhist-export-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 6px 16px var(--primary-blue-alpha-4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+
+.stockhist-export-btn:active {
+  transform: translateY(0);
+}
+
+.stockhist-cancel-btn {
+  background: rgba(60, 60, 80, 0.8);
+  color: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.stockhist-cancel-btn:hover {
+  background: rgba(80, 80, 100, 0.9);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .stockhist-modal-content {
+    max-width: 900px;
+    padding: 20px;
+  }
+  
+  .stockhist-form {
+    gap: 18px;
+  }
+  
+  .stockhist-details-section {
+    flex: 0 0 300px;
+  }
+  
+  .stockhist-row {
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .stockhist-modal-content {
+    padding: 18px;
+    margin: 10px;
+    border-radius: 16px;
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .stockhist-form {
+    flex-direction: column;
+    gap: 14px;
+  }
+  
+  .stockhist-details-section {
+    flex: none;
+  }
+  
+  .stockhist-title {
+    font-size: 1.2rem;
+    margin-bottom: 12px;
+  }
+  
+  .stockhist-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .stockhist-table {
+    font-size: 0.8rem;
+  }
+  
+  .stockhist-table th,
+  .stockhist-table td {
+    padding: 8px 12px;
+  }
+  
+  .stockhist-actions {
+    flex-direction: row;
+    gap: 8px;
+    margin-top: 12px;
+    padding-top: 12px;
+  }
+  
+  .stockhist-export-btn,
+  .stockhist-cancel-btn {
+    flex: 1;
+    padding: 12px 16px;
+    min-width: auto;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .stockhist-modal-content {
+    padding: 16px;
+    max-height: 95vh;
+  }
+  
+  .stockhist-form {
+    gap: 12px;
+  }
+  
+  .stockhist-table {
+    font-size: 0.75rem;
+  }
+  
+  .stockhist-table th,
+  .stockhist-table td {
+    padding: 6px 8px;
+  }
+  
+  .stockhist-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+@media (max-width: 480px) {
+  .stockhist-modal-backdrop {
+    padding: 8px;
+  }
+  
+  .stockhist-modal-content {
+    padding: 14px;
+    max-height: 95vh;
+  }
+  
+  .stockhist-input {
+    padding: 10px 12px;
+    font-size: 0.85rem;
+  }
+  
+  .stockhist-label,
+  .stockhist-group label {
+    font-size: 0.7rem;
+  }
+  
+  .stockhist-table {
+    font-size: 0.7rem;
+  }
+  
+  .stockhist-table th,
+  .stockhist-table td {
+    padding: 6px;
+  }
+}
+
+/* Enhanced Focus Styles for Accessibility */
+.stockhist-input:focus,
+.stockhist-export-btn:focus,
+.stockhist-cancel-btn:focus,
+.stockhist-pagination-btn:focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* Loading State for Buttons */
+.stockhist-export-btn:disabled,
+.stockhist-cancel-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Smooth Transitions */
+* {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Hover Effects for Better UX */
+.stockhist-group:hover .stockhist-label {
+  color: var(--primary-blue-light);
+}
+
+.stockhist-input:not(:focus):not(:disabled):hover {
+  border-color: rgba(255, 255, 255, 0.4);
+  background: rgba(50, 50, 70, 0.9);
+}
+
+/* Select Dropdown Enhancement */
+.stockhist-input[type="select"],
+.stockhist-input select {
+  background: rgba(40, 40, 55, 0.8);
+  cursor: pointer;
+}
+
+.stockhist-input[type="select"]:not(:disabled):hover,
+.stockhist-input select:not(:disabled):hover {
+  background: rgba(50, 50, 70, 0.9);
+}
+
+/* Date Input Enhancement */
+.stockhist-input[type="date"] {
+  background: rgba(40, 40, 55, 0.8);
+  cursor: pointer;
+}
+
+.stockhist-input[type="date"]:not(:disabled):hover {
+  background: rgba(50, 50, 70, 0.9);
+}
+
+/* Special styling for empty table message */
+.stockhist-table td[colspan="4"] {
+  text-align: center;
+  font-style: italic;
+  color: rgba(255, 255, 255, 0.7);
+  padding: 20px;
+}
