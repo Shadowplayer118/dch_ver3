@@ -26,10 +26,9 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
       return;
     }
 
-    const currentUnits = location === 'warehouse'
+    const currentUnits = formData.location === 'warehouse'
       ? parseInt(formData.wh_units || 0)
       : parseInt(formData.store_units || 0);
-
 
     const updatedUnits = currentUnits - qty;
 
@@ -64,59 +63,151 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
   };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content">
-        <h2>Stock Out Item</h2>
-        <div className="item-details">
-          <p><strong>Item Code:</strong> {formData.item_code}</p>
-          <p><strong>Name:</strong> {formData.desc_1}</p>
-          <p><strong>Brand:</strong> {formData.brand}</p>
-          <p><strong>Category:</strong> {formData.category}</p>
-          <p><strong>Warehouse Units:</strong> {formData.wh_units}</p>
-          <p><strong>Store Units:</strong> {formData.store_units}</p>
-        </div>
+    <div className="stockout-modal-backdrop">
+      <div className="stockout-modal-content">
+        <h2 className="stockout-title">Stock Out Item</h2>
 
-        <form onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label>Location</label>
-            <input type="text" value={formData.location || ''} readOnly />
+        <form onSubmit={handleSubmit} className="stockout-form">
+          {/* Left Side - Item Image Section */}
+          <div className="stockout-image-section">
+            <div className="stockout-group">
+              <label>Item Image</label>
+            </div>
+            <div className="stockout-image-preview">
+              <img 
+                src={formData.image_path || 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'} 
+                alt="Item Preview" 
+                className="stockout-preview-img" 
+              />
+            </div>
           </div>
 
-          <div className="form-group">
-            <label>Quantity to Stock Out</label>
-            <input
-              type="number"
-              min="1"
-              value={quantity}
-              onChange={(e) => setQuantity(e.target.value)}
-              required
-            />
-          </div>
+          {/* Right Side - Form Fields */}
+          <div className="stockout-fields-section">
+            {/* Item Code */}
+            <div className="stockout-group">
+              <label className="stockout-label">Item Code</label>
+              <input 
+                type="text" 
+                value={formData.item_code || ''} 
+                readOnly 
+                className="stockout-input" 
+              />
+            </div>
 
-          <div className="form-group">
-            <label>Date of Transaction</label>
-            <input
-              type="date"
-              onChange={(e) => setTransactionDate(e.target.value)}
-              required
-            />
-          </div>
+            {/* Item Name and Brand in same row */}
+            <div className="stockout-row">
+              <div className="stockout-group">
+                <label>Item Name</label>
+                <input 
+                  type="text" 
+                  value={formData.desc_1 || ''} 
+                  readOnly 
+                  className="stockout-input" 
+                />
+              </div>
+              <div className="stockout-group">
+                <label>Brand</label>
+                <input 
+                  type="text" 
+                  value={formData.brand || ''} 
+                  readOnly 
+                  className="stockout-input" 
+                />
+              </div>
+            </div>
 
+            {/* Category and Current Units in same row */}
+            <div className="stockout-row">
+              <div className="stockout-group">
+                <label>Category</label>
+                <input 
+                  type="text" 
+                  value={formData.category || ''} 
+                  readOnly 
+                  className="stockout-input" 
+                />
+              </div>
+              <div className="stockout-group">
+                <label>Current Units</label>
+                <input 
+                  type="text" 
+                  value={formData.location === 'warehouse' ? formData.wh_units || '0' : formData.store_units || '0'} 
+                  readOnly 
+                  className="stockout-input" 
+                />
+              </div>
+            </div>
 
-          <div className="form-group">
-            <label>Requisition Number</label>
-            <input
-              type="text"
-              value={reqnumber}
-              onChange={(e) => setReqnumber(e.target.value)}
-            />
-          </div>
+            {/* Location */}
+            <div className="stockout-group">
+              <label>Location</label>
+              <input 
+                type="text" 
+                value={formData.location || ''} 
+                readOnly 
+                className="stockout-input" 
+              />
+            </div>
 
-          <div className="modal-actions">
-            <button type="submit">Confirm</button>
-            <button type="button" onClick={onClose} className="cancel-btn">Cancel</button>
+            {/* Quantity to Stock Out and Date in same row */}
+            <div className="stockout-row">
+              <div className="stockout-group">
+                <label>Quantity to Stock Out</label>
+                <input
+                  type="number"
+                  min="1"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  required
+                  autoComplete="off"
+                  className="stockout-input"
+                />
+              </div>
+              <div className="stockout-group">
+                <label>Date of Transaction</label>
+                <input
+                  type="date"
+                  value={transactionDate}
+                  onChange={(e) => setTransactionDate(e.target.value)}
+                  required
+                  className="stockout-input"
+                />
+              </div>
+            </div>
+
+            {/* Requisition Number */}
+            <div className="stockout-group">
+              <label>Requisition Number</label>
+              <input
+                type="text"
+                value={reqnumber}
+                onChange={(e) => setReqnumber(e.target.value)}
+                autoComplete="off"
+                className="stockout-input"
+              />
+            </div>
+
+            {/* New Units After Stock Out (calculated display) */}
+            <div className="stockout-group">
+              <label>New Units After Stock Out</label>
+              <input
+                type="text"
+                value={quantity ? 
+                  (parseInt(formData.location === 'warehouse' ? formData.wh_units || 0 : formData.store_units || 0) - parseInt(quantity)).toString() 
+                  : (formData.location === 'warehouse' ? formData.wh_units || '0' : formData.store_units || '0')
+                }
+                readOnly
+                className="stockout-input"
+              />
+            </div>
           </div>
         </form>
+
+        <div className="stockout-actions">
+          <button type="button" onClick={onClose} className="stockout-cancel-btn">Cancel</button>
+          <button type="submit" onClick={handleSubmit} className="stockout-submit-btn">Confirm Stock Out</button>
+        </div>
       </div>
     </div>
   );

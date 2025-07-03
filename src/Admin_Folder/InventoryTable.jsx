@@ -476,11 +476,11 @@ function InventoryTable() {
                       <td className="prices-cell">
                         <div className="price-row">
                           <span className="price-label">Fixed:</span>
-                          <span className="price-value">${item.fixed_price}</span>
+                          <span className="price-value">₱{item.fixed_price}</span>
                         </div>
                         <div className="price-row">
                           <span className="price-label">Retail:</span>
-                          <span className="price-value">${item.retail_price}</span>
+                          <span className="price-value">₱{item.retail_price}</span>
                         </div>
                         <div className="price-row">
                           <span className="price-label">TSV:</span>
@@ -541,7 +541,7 @@ function InventoryTable() {
                   )
                 )}
               </select>
-              <span className="page-text">of {totalPages}</span>
+              <span className="page-text">{totalPages}</span>
             </div>
 
             <button 

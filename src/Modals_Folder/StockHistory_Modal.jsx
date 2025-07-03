@@ -75,229 +75,270 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
-const sortedHistory = [...filteredHistory].sort((a, b) => new Date(a.trans_date) - new Date(b.trans_date));
+  const sortedHistory = [...filteredHistory].sort((a, b) => new Date(a.trans_date) - new Date(b.trans_date));
 
+  const calculatedUnits = history.reduce((total, record) => {
+    const units = parseInt(record.trans_units) || 0;
 
-const calculatedUnits = history.reduce((total, record) => {
-  const units = parseInt(record.trans_units) || 0;
+    if (record.trans_type === "STOCK IN") return total + units;
+    if (record.trans_type === "STOCK OUT") return total - units;
+    return total;
+  }, 0);
 
-  if (record.trans_type === "STOCK IN") return total + units;
-  if (record.trans_type === "STOCK OUT") return total - units;
-  return total;
-}, 0);
-
-
-const actualUnits = parseInt(itemData.units) || 0;
-const discrepancy = calculatedUnits - actualUnits;
-
-
-
+  const actualUnits = parseInt(itemData.units) || 0;
+  const discrepancy = calculatedUnits - actualUnits;
 
   const exportToExcel = () => {
-  if (filteredHistory.length === 0) return;
+    if (filteredHistory.length === 0) return;
 
-  const worksheet = XLSX.utils.json_to_sheet(filteredHistory);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, 'Stock History');
+    const worksheet = XLSX.utils.json_to_sheet(filteredHistory);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Stock History');
 
-  const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
-  const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
+    const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+    const data = new Blob([excelBuffer], { type: 'application/octet-stream' });
 
-  const itemName = (itemData.desc_1 + itemData.desc_2 + itemData.desc_3).replace(/\s+/g, '_');
-  saveAs(data, `${itemData.item_code}_${itemName}_stock_history.xlsx`);
-};
+    const itemName = (itemData.desc_1 + itemData.desc_2 + itemData.desc_3).replace(/\s+/g, '_');
+    saveAs(data, `${itemData.item_code}_${itemName}_stock_history.xlsx`);
+  };
 
   const printStockHistory = () => {
-  const printWindow = window.open('', '_blank');
+    const printWindow = window.open('', '_blank');
 
-  const itemName = itemData.desc_1 + ' ' + itemData.desc_2 + ' ' + itemData.desc_3;
+    const itemName = itemData.desc_1 + ' ' + itemData.desc_2 + ' ' + itemData.desc_3;
 
-  const tableRows = filteredHistory.map(
-    record => `
-      <tr>
-        <td>${record.trans_type}</td>
-        <td>${record.trans_units}</td>
-        <td>${record.location}</td>
-        <td>${record.trans_date}</td>
-      </tr>`
-  ).join('');
+    const tableRows = filteredHistory.map(
+      record => `
+        <tr>
+          <td>${record.trans_type}</td>
+          <td>${record.trans_units}</td>
+          <td>${record.location}</td>
+          <td>${record.trans_date}</td>
+        </tr>`
+    ).join('');
 
-  const htmlContent = `
-    <html>
-      <head>
-        <title>Stock History - ${itemData.item_code}</title>
-        <style>
-          body {
-            font-family: Arial, sans-serif;
-            padding: 20px;
-          }
-          h2, h4 {
-            text-align: center;
-            margin: 0 0 10px 0;
-          }
-          table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-          }
-          th, td {
-            border: 1px solid #333;
-            padding: 8px;
-            text-align: center;
-          }
-          th {
-            background-color: #f2f2f2;
-          }
-          .details {
-            margin-top: 10px;
-            font-size: 14px;
-          }
-        </style>
-      </head>
-      <body>
-        <h2>Stock History Report</h2>
-        <h4>${itemData.item_code} - ${itemName}</h4>
+    const htmlContent = `
+      <html>
+        <head>
+          <title>Stock History - ${itemData.item_code}</title>
+          <style>
+            body {
+              font-family: Arial, sans-serif;
+              padding: 20px;
+            }
+            h2, h4 {
+              text-align: center;
+              margin: 0 0 10px 0;
+            }
+            table {
+              width: 100%;
+              border-collapse: collapse;
+              margin-top: 20px;
+            }
+            th, td {
+              border: 1px solid #333;
+              padding: 8px;
+              text-align: center;
+            }
+            th {
+              background-color: #f2f2f2;
+            }
+            .details {
+              margin-top: 10px;
+              font-size: 14px;
+            }
+          </style>
+        </head>
+        <body>
+          <h2>Stock History Report</h2>
+          <h4>${itemData.item_code} - ${itemName}</h4>
 
-        <div class="details">
-          <p><strong>Brand:</strong> ${itemData.brand}</p>
-          <p><strong>Category:</strong> ${itemData.category}</p>
-          ${dateFrom || dateTo ? `<p><strong>Date Range:</strong> ${dateFrom || '...'} to ${dateTo || '...'}</p>` : ''}
-          ${filterType ? `<p><strong>Transaction Type:</strong> ${filterType}</p>` : ''}
-          ${filterFrom ? `<p><strong>From:</strong> ${filterFrom}</p>` : ''}
-        </div>
+          <div class="details">
+            <p><strong>Brand:</strong> ${itemData.brand}</p>
+            <p><strong>Category:</strong> ${itemData.category}</p>
+            ${dateFrom || dateTo ? `<p><strong>Date Range:</strong> ${dateFrom || '...'} to ${dateTo || '...'}</p>` : ''}
+            ${filterType ? `<p><strong>Transaction Type:</strong> ${filterType}</p>` : ''}
+            ${filterFrom ? `<p><strong>From:</strong> ${filterFrom}</p>` : ''}
+          </div>
 
-        <table>
-          <thead>
-            <tr>
-              <th>Transaction Type</th>
-              <th>Units</th>
-              <th>From</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${tableRows || '<tr><td colspan="4">No data found</td></tr>'}
-          </tbody>
-        </table>
+          <table>
+            <thead>
+              <tr>
+                <th>Transaction Type</th>
+                <th>Units</th>
+                <th>From</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows || '<tr><td colspan="4">No data found</td></tr>'}
+            </tbody>
+          </table>
 
-        <script>
-          window.onload = function () {
-            window.print();
-            window.onafterprint = () => window.close();
-          };
-        </script>
-      </body>
-    </html>
-  `;
+          <script>
+            window.onload = function () {
+              window.print();
+              window.onafterprint = () => window.close();
+            };
+          </script>
+        </body>
+      </html>
+    `;
 
-  printWindow.document.write(htmlContent);
-  printWindow.document.close();
-};
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+  };
 
   return (
-    <div className="modal-backdrop">
-      <div className="modal-content large">
-        <h2>Stock History</h2>
+    <div className="stockhist-modal-backdrop">
+      <div className="stockhist-modal-content">
+        <h2 className="stockhist-title">Stock History</h2>
 
-        {/* Item Details */}
-        <div className="item-details">
-          <p><strong>Item Code:</strong> {itemData.item_code}</p>
-          <p><strong>Name:</strong> {itemData.desc_1 + itemData.desc_2 + itemData.desc_3 + itemData.desc_4}</p>
-          <p><strong>Brand:</strong> {itemData.brand}</p>
-          <p><strong>Category:</strong> {itemData.category}</p>
-          <p><strong>Current Units:</strong> {itemData.units}</p>
-        </div>
-
-        {/* Filter Controls */}
-        <div className="filters" style={{ marginBottom: '10px' }}>
-          <label>
-            From: <input type="date" value={dateFrom} onChange={e => setDateFrom(e.target.value)} />
-          </label>
-          <label style={{ marginLeft: '10px' }}>
-            To: <input type="date" value={dateTo} onChange={e => setDateTo(e.target.value)} />
-          </label>
-          <label style={{ marginLeft: '10px' }}>
-            Type:
-            <select value={filterType} onChange={e => setFilterType(e.target.value)}>
-              <option value="">All</option>
-              <option value="STOCK IN">Stock In</option>
-              <option value="STOCK OUT">Stock Out</option>
-            </select>
-          </label>
-          <label style={{ marginLeft: '10px' }}>
-            From:
-            <select value={filterFrom} onChange={e => setFilterFrom(e.target.value)}>
-              <option value="">All</option>
-              <option value="WAREHOUSE">WAREHOUSE</option>
-              <option value="STORE">STORE</option>
-              {[...new Set(history.map(h => h.trans_from))].map((source, idx) => (
-                <option key={idx} value={source}>{source}</option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-          <div>
-            Calculated Units from History: {calculatedUnits} <br />
-             Discrepancy Detected: {discrepancy > 0 ? `+${discrepancy} extra units` : `${Math.abs(discrepancy)} units missing`}
+        <div className="stockhist-form">
+          {/* Left Side - Item Details Section */}
+          <div className="stockhist-details-section">
+            <div className="stockhist-group">
+              <label className="stockhist-label">Item Details</label>
+              <div className="stockhist-item-details">
+                <p><strong>Item Code:</strong> {itemData.item_code}</p>
+                <p><strong>Name:</strong> {itemData.desc_1 + itemData.desc_2 + itemData.desc_3 + itemData.desc_4}</p>
+                <p><strong>Brand:</strong> {itemData.brand}</p>
+                <p><strong>Category:</strong> {itemData.category}</p>
+                <p><strong>Current Units:</strong> {itemData.units}</p>
+                <div className="stockhist-discrepancy">
+                  <p><strong>Calculated Units from History:</strong> {calculatedUnits}</p>
+                  <p><strong>Discrepancy:</strong> {discrepancy > 0 ? `+${discrepancy} extra units` : `${Math.abs(discrepancy)} units missing`}</p>
+                </div>
+              </div>
+            </div>
           </div>
+
+          {/* Right Side - Filter Controls */}
+          <div className="stockhist-fields-section">
+            <div className="stockhist-group">
+              <label className="stockhist-label">Filter Options</label>
+            </div>
+
+            {/* Date Range Filters */}
+            <div className="stockhist-row">
+              <div className="stockhist-group">
+                <label>Date From</label>
+                <input 
+                  type="date" 
+                  value={dateFrom} 
+                  onChange={e => setDateFrom(e.target.value)} 
+                  className="stockhist-input" 
+                />
+              </div>
+              <div className="stockhist-group">
+                <label>Date To</label>
+                <input 
+                  type="date" 
+                  value={dateTo} 
+                  onChange={e => setDateTo(e.target.value)} 
+                  className="stockhist-input" 
+                />
+              </div>
+            </div>
+
+            {/* Transaction Type and Location Filters */}
+            <div className="stockhist-row">
+              <div className="stockhist-group">
+                <label>Transaction Type</label>
+                <select 
+                  value={filterType} 
+                  onChange={e => setFilterType(e.target.value)}
+                  className="stockhist-input"
+                >
+                  <option value="">All</option>
+                  <option value="STOCK IN">Stock In</option>
+                  <option value="STOCK OUT">Stock Out</option>
+                </select>
+              </div>
+              <div className="stockhist-group">
+                <label>Location</label>
+                <select 
+                  value={filterFrom} 
+                  onChange={e => setFilterFrom(e.target.value)}
+                  className="stockhist-input"
+                >
+                  <option value="">All</option>
+                  <option value="WAREHOUSE">WAREHOUSE</option>
+                  <option value="STORE">STORE</option>
+                  {[...new Set(history.map(h => h.trans_from))].map((source, idx) => (
+                    <option key={idx} value={source}>{source}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
 
         {/* Stock History Table */}
-        <table className="history-table">
-          <thead>
-            <tr>
-              <th>Transaction Type</th>
-              <th>Units</th>
-              <th>From</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentHistory.length === 0 ? (
+        <div className="stockhist-table-section">
+          <table className="stockhist-table">
+            <thead>
               <tr>
-                <td colSpan="4" style={{ textAlign: 'center' }}>No transaction history found.</td>
+                <th>Transaction Type</th>
+                <th>Units</th>
+                <th>From</th>
+                <th>Date</th>
               </tr>
-            ) : (
-              currentHistory.map((record, index) => (
-                <tr key={index}>
-                  <td>{record.trans_type}</td>
-                  <td>{record.trans_units}</td>
-                  <td>{record.location}</td>
-                  <td>{record.trans_date}</td>
+            </thead>
+            <tbody>
+              {currentHistory.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: 'center' }}>No transaction history found.</td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+              ) : (
+                currentHistory.map((record, index) => (
+                  <tr key={index}>
+                    <td>{record.trans_type}</td>
+                    <td>{record.trans_units}</td>
+                    <td>{record.location}</td>
+                    <td>{record.trans_date}</td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
 
-        {/* Pagination Controls */}
-        {filteredHistory.length > entriesPerPage && (
-          <div className="pagination-controls" style={{ marginTop: '10px', textAlign: 'center' }}>
-            <button onClick={goToPreviousPage} disabled={currentPage === 1}>
-              Previous
-            </button>
-            <span style={{ margin: '0 10px' }}>
-              Page {currentPage} of {totalPages}
-            </span>
-            <button onClick={goToNextPage} disabled={currentPage === totalPages}>
-              Next
-            </button>
-          </div>
-        )}
-
-        {/* Close Button */}
-        <div className="modal-actions">
-          <button onClick={onClose} className="cancel-btn">Close</button>
+          {/* Pagination Controls */}
+          {filteredHistory.length > entriesPerPage && (
+            <div className="stockhist-pagination">
+              <button 
+                onClick={goToPreviousPage} 
+                disabled={currentPage === 1}
+                className="stockhist-pagination-btn"
+              >
+                Previous
+              </button>
+              <span className="stockhist-pagination-info">
+                Page {currentPage} of {totalPages}
+              </span>
+              <button 
+                onClick={goToNextPage} 
+                disabled={currentPage === totalPages}
+                className="stockhist-pagination-btn"
+              >
+                Next
+              </button>
+            </div>
+          )}
         </div>
 
-        <button onClick={exportToExcel} className="export-btn" style={{ marginRight: '10px' }}>
+        {/* Action Buttons */}
+        <div className="stockhist-actions">
+          <button onClick={exportToExcel} className="stockhist-export-btn">
             Export to Excel
-        </button>
-
-        <button onClick={printStockHistory} className="export-btn" style={{ marginRight: '10px' }}>
+          </button>
+          <button onClick={printStockHistory} className="stockhist-export-btn">
             Print PDF
-        </button>
-
+          </button>
+          <button onClick={onClose} className="stockhist-cancel-btn">
+            Close
+          </button>
+        </div>
       </div>
     </div>
   );
