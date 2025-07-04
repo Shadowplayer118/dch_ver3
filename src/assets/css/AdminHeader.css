@@ -1,6 +1,6 @@
 /* Enhanced AdminHeader.css with Color Variables */
 
-.admin-header {
+.main-header{
   background: linear-gradient(135deg, var(--color-blue-900) 0%, var(--color-blue-500) 25%, var(--color-blue-700) 50%, var(--color-blue-600) 75%, var(--color-blue-800) 100%);
   box-shadow: 0 10px 40px rgba(30, 58, 138, 0.3), 0 4px 20px rgba(0, 0, 0, 0.1);
   position: sticky;
@@ -648,7 +648,7 @@
 }
 
 @media (max-width: 768px) {
-  .admin-header {
+  .main-header{
     min-height: 70px;
   }
   
@@ -829,7 +829,7 @@
 }
 
 @media (max-width: 480px) {
-  .admin-header {
+  .main-header{
     min-height: 60px;
   }
   
@@ -869,7 +869,7 @@
    ======================================== */
 
 @media print {
-  .admin-header {
+  .main-header{
     background: var(--color-white) !important;
     box-shadow: none !important;
     border-bottom: 2px solid var(--color-gray-300) !important;
@@ -941,7 +941,7 @@
 }
 
 @media (prefers-contrast: high) {
-  .admin-header {
+  .main-header{
     background: var(--color-blue-900) !important;
     border-bottom: 3px solid var(--color-white) !important;
   }
@@ -981,12 +981,12 @@
    THEME SUPPORT
    ======================================== */
 
-[data-theme="dark"] .admin-header {
+[data-theme="dark"] .main-header{
   background: linear-gradient(135deg, var(--color-gray-900) 0%, var(--color-gray-800) 25%, var(--color-gray-900) 50%, var(--color-gray-800) 75%, var(--color-gray-900) 100%);
   border-bottom-color: rgba(255, 255, 255, 0.1);
 }
 
-[data-theme="light"] .admin-header {
+[data-theme="light"] .main-header{
   background: linear-gradient(135deg, var(--color-blue-50) 0%, var(--color-blue-100) 25%, var(--color-blue-50) 50%, var(--color-blue-100) 75%, var(--color-blue-50) 100%);
   border-bottom-color: rgba(0, 0, 0, 0.1);
 }
@@ -1002,7 +1002,7 @@
    PERFORMANCE OPTIMIZATIONS
    ======================================== */
 
-.admin-header {
+.main-header{
   will-change: transform;
   transform: translateZ(0);
 }
