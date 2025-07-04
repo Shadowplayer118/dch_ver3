@@ -1,4 +1,4 @@
-/* Main Container with Gradient Background */
+/* Main Container with Dark Gradient Background (Default) */
 .inventory-container {
   width: 100%;
   max-width: 100vw;
@@ -7,8 +7,8 @@
   box-sizing: border-box;
   background: linear-gradient(
     135deg,
-    var(--gradient-light-1),
-    var(--gradient-light-2)
+    var(--gradient-dark-1),
+    var(--gradient-dark-2)
   );
   position: relative;
 }
@@ -22,11 +22,10 @@
   bottom: 0;
   background: linear-gradient(
     45deg,
-    var(--gradient-dark-1),
-    var(--gradient-dark-2),
-    var(--gradient-dark-3)
+    var(--gradient-light-1),
+    var(--gradient-light-2)
   );
-  opacity: 0.1;
+  opacity: 0.05;
   pointer-events: none;
 }
 
@@ -357,22 +356,23 @@
   }
 }
 
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
-  .inventory-container {
+/* Light mode support (Optional - only if you want to offer light mode as an option) */
+@media (prefers-color-scheme: light) {
+  .inventory-container.light-mode {
     background: linear-gradient(
       135deg,
-      var(--gradient-dark-1),
-      var(--gradient-dark-2)
-    );
-  }
-
-  .inventory-container::before {
-    background: linear-gradient(
-      45deg,
       var(--gradient-light-1),
       var(--gradient-light-2)
     );
-    opacity: 0.05;
+  }
+
+  .inventory-container.light-mode::before {
+    background: linear-gradient(
+      45deg,
+      var(--gradient-dark-1),
+      var(--gradient-dark-2),
+      var(--gradient-dark-3)
+    );
+    opacity: 0.1;
   }
 }

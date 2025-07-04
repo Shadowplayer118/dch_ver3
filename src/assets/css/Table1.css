@@ -359,7 +359,7 @@
 }
 
 .history-btn:hover {
-  background: var(--gradient-light-1);
+  background: #4caf4f62;
   color: #ffffff;
   box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
 }
