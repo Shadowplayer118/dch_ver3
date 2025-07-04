@@ -102,7 +102,7 @@ function AdminHeader() {
   };
 
   return (
-    <header className="admin-header">
+    <header className="main-header">
       <div className="header-container">
         {/* Logo Section */}
         <div className="header-left">

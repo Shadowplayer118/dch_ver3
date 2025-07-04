@@ -331,6 +331,150 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
+/* ==== NEW DISABLED BUTTON STYLES ==== */
+
+/* General disabled button styling */
+.action-btn:disabled,
+.stockin-submit-btn:disabled,
+.stockin-cancel-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+  pointer-events: none;
+  position: relative;
+}
+
+/* Specific disabled styles for action buttons */
+.action-btn.disabled,
+.action-btn:disabled {
+  background: rgba(40, 40, 50, 0.6) !important;
+  color: rgba(255, 255, 255, 0.4) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+/* Add a subtle "locked" indicator for disabled buttons */
+.action-btn.disabled::before,
+.action-btn:disabled::before {
+  content: "🔒";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 0.8rem;
+  opacity: 0.6;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Hide original text when disabled */
+.action-btn.disabled,
+.action-btn:disabled {
+  color: transparent !important;
+  text-shadow: none !important;
+}
+
+/* Alternative style without icon overlay - cleaner look */
+.action-btn.disabled-alt,
+.action-btn:disabled.alt-style {
+  background: linear-gradient(135deg, rgba(60, 60, 70, 0.3), rgba(40, 40, 50, 0.3)) !important;
+  color: rgba(255, 255, 255, 0.3) !important;
+  border: 1px dashed rgba(255, 255, 255, 0.15) !important;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3) !important;
+}
+
+.action-btn.disabled-alt::before,
+.action-btn:disabled.alt-style::before {
+  display: none;
+}
+
+/* Disabled button hover prevention */
+.action-btn:disabled:hover,
+.action-btn.disabled:hover {
+  transform: none !important;
+  box-shadow: none !important;
+  background: rgba(40, 40, 50, 0.6) !important;
+}
+
+/* Add a subtle glow effect for enabled buttons to contrast with disabled ones */
+.action-btn:not(:disabled):not(.disabled) {
+  position: relative;
+  overflow: hidden;
+}
+
+.action-btn:not(:disabled):not(.disabled)::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.action-btn:not(:disabled):not(.disabled):hover::after {
+  left: 100%;
+}
+
+/* Tooltip-like effect for disabled buttons */
+.action-btn:disabled,
+.action-btn.disabled {
+  position: relative;
+}
+
+.action-btn:disabled:hover::before,
+.action-btn.disabled:hover::before {
+  content: "Access Restricted";
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(20, 20, 30, 0.95);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  white-space: nowrap;
+  z-index: 1000;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  animation: tooltipFade 0.3s ease-out;
+}
+
+@keyframes tooltipFade {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Specific styles for Stock In/Out buttons */
+.action-btn.edit-btn:disabled,
+.action-btn.edit-btn.disabled {
+  background: rgba(50, 35, 35, 0.6) !important; /* Slight red tint */
+}
+
+.action-btn.history-btn:disabled,
+.action-btn.history-btn.disabled {
+  background: rgba(35, 40, 50, 0.6) !important; /* Slight blue tint */
+}
+
+/* Enhanced focus styles for accessibility */
+.action-btn:not(:disabled):focus {
+  outline: 2px solid var(--primary-blue);
+  outline-offset: 2px;
+}
+
+/* ==== END DISABLED BUTTON STYLES ==== */
+
 /* Responsive Design - Improved breakpoints */
 @media (max-width: 1024px) {
   .stockin-modal-content {
@@ -411,6 +555,13 @@
     padding: 12px;
     min-width: auto;
   }
+  
+  /* Adjust disabled button tooltips for mobile */
+  .action-btn:disabled:hover::before,
+  .action-btn.disabled:hover::before {
+    font-size: 0.65rem;
+    padding: 3px 6px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -448,6 +599,12 @@
   .stockin-group label {
     font-size: 0.7rem;
   }
+  
+  /* Simplify disabled button effects on very small screens */
+  .action-btn:disabled::before,
+  .action-btn.disabled::before {
+    font-size: 0.7rem;
+  }
 }
 
 /* Enhanced Focus Styles for Accessibility */
@@ -459,7 +616,7 @@
 }
 
 /* Loading State for Submit Button */
-.stockin-submit-btn:disabled {
+.stockin-submit-btn:disabled:not(.access-restricted) {
   opacity: 0.6;
   cursor: not-allowed;
   transform: none;
@@ -496,4 +653,53 @@
 /* Special handling for number inputs */
 .stockin-input[type="number"] {
   white-space: normal;
+}
+
+/* Additional styles for user permission indicators */
+.permission-indicator {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: rgba(255, 0, 0, 0.8);
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.6rem;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Accessibility improvements */
+.action-btn:disabled,
+.action-btn.disabled {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  .action-btn:disabled,
+  .action-btn.disabled {
+    background: rgba(0, 0, 0, 0.8) !important;
+    color: rgba(255, 255, 255, 0.5) !important;
+    border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .action-btn:disabled::before,
+  .action-btn.disabled::before {
+    animation: none;
+  }
+  
+  .action-btn:not(:disabled):not(.disabled)::after {
+    transition: none;
+  }
 }
