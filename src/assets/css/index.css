@@ -1,0 +1,59 @@
+/* Apply system font globally */
+* {
+  font-family: system-ui, -apple-system, sans-serif;
+   margin: 0;
+   padding: 0;
+   box-sizing: border-box;
+}
+
+/* ========================================
+   HEADER CSS VARIABLES
+   ======================================== */
+
+:root {
+  /* Primary Colors */
+  --color-blue-900: #1e3a8a;
+  --color-blue-800: #1e40af;
+  --color-blue-700: #1d4ed8;
+  --color-blue-600: #2563eb;
+  --color-blue-500: #3b82f6;
+  --color-blue-400: #60a5fa;
+  --color-blue-300: #93c5fd;
+  --color-blue-100: #dbeafe;
+  --color-blue-50: #eff6ff;
+  
+  /* Neutral Colors */
+  --color-white: #ffffff;
+  --color-black: #000000;
+  
+  /* Red Colors */
+  --color-red-600: #dc2626;
+  --color-red-500: #ef4444;
+  --color-red-400: #f87171;
+  --color-red-300: #fca5a5;
+  
+  /* Additional Colors */
+  --color-indigo-200: #e0e7ff;
+  --color-indigo-300: #c7d2fe;
+}
+
+/* ========================================
+   PAGES CSS VARIABLES
+   ======================================== */
+
+:root {
+  --gradient-light-1: #667eea;
+  --gradient-light-2: #764ba2;
+  --gradient-dark-1: #1a1a2e;
+  --gradient-dark-2: #16213e;
+  --gradient-dark-3: #0f3460;
+  --primary-blue: #2196f3;
+  --primary-blue-light: #21cbf3;
+  --primary-blue-alpha-3: rgba(33, 150, 243, 0.3);
+  --primary-blue-alpha-4: rgba(33, 150, 243, 0.4);
+  --primary-blue-alpha-5: rgba(33, 150, 243, 0.5);
+  --secondary-green: #4caf50;
+  --secondary-green-dark: #388e3c;
+  --secondary-green-alpha-3: rgba(76, 175, 80, 0.3);
+  --secondary-green-alpha-4: rgba(76, 175, 80, 0.4);
+}

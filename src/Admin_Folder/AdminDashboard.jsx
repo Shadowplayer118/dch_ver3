@@ -17,6 +17,18 @@ const InventorySummary = () => {
     setLocation(next);
   };
 
+  // Format number with commas and no decimals
+  const formatNumber = (value) => {
+    const num = parseInt(value) || 0;
+    return num.toLocaleString();
+  };
+
+  // Format currency with peso symbol and commas, no decimals
+  const formatCurrency = (value) => {
+    const num = parseInt(value) || 0;
+    return `₱${num.toLocaleString()}`;
+  };
+
   useEffect(() => {
     const fetchSummary = async () => {
       setLoading(true);
@@ -46,7 +58,7 @@ const InventorySummary = () => {
   return (
     <div className="glass-card inventory-summary">
       <div className="card-header">
-        <h2 className="card-title">Inventory Summary</h2>
+        <h2 className="card-title">📦 Inventory Summary</h2>
         <button className="glass-button location-toggle" onClick={toggleLocation}>
           <span className="button-label">Location:</span>
           <span className="button-value">{location}</span>
@@ -63,28 +75,37 @@ const InventorySummary = () => {
             <div className="summary-icon">📦</div>
             <div className="summary-content">
               <p className="summary-label">Total Items</p>
-              <p className="summary-value">{summary.item_count}</p>
+              <p className="summary-value" title={formatNumber(summary.item_count)}>
+                {formatNumber(summary.item_count)}
+              </p>
             </div>
           </div>
           <div className="summary-item">
             <div className="summary-icon">💰</div>
             <div className="summary-content">
               <p className="summary-label">Total Stock Value</p>
-              <p className="summary-value">₱ {parseFloat(summary.total_value).toFixed(2)}</p>
+              <p className="summary-value currency-value" title={formatCurrency(summary.total_value)}>
+                <span className="peso-symbol">₱</span>
+                <span className="amount">{formatNumber(summary.total_value)}</span>
+              </p>
             </div>
           </div>
           <div className="summary-item">
             <div className="summary-icon">📥</div>
             <div className="summary-content">
               <p className="summary-label">Stock-Ins Today</p>
-              <p className="summary-value">{summary.stock_in_today}</p>
+              <p className="summary-value" title={formatNumber(summary.stock_in_today)}>
+                {formatNumber(summary.stock_in_today)}
+              </p>
             </div>
           </div>
           <div className="summary-item">
             <div className="summary-icon">📤</div>
             <div className="summary-content">
               <p className="summary-label">Stock-Outs Today</p>
-              <p className="summary-value">{summary.stock_out_today}</p>
+              <p className="summary-value" title={formatNumber(summary.stock_out_today)}>
+                {formatNumber(summary.stock_out_today)}
+              </p>
             </div>
           </div>
         </div>
@@ -195,48 +216,50 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
     <div className="glass-card weekly-report">
       <h2 className="card-title">Weekly Activity Report</h2>
       <div className="table-container">
-        <table className="glass-table">
-          <thead>
-            <tr>
-              <th>Day</th>
-              <th>Date</th>
-              <th>Insert</th>
-              <th>Update</th>
-              <th>Delete</th>
-              <th>Stock In</th>
-              <th>Stock Out</th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map(({ day_name, day_date, insert_count, update_count, delete_count, stock_in_count, stock_out_count }) => (
-              <tr key={day_name} className="table-row">
-                <td className="day-cell">{day_name}</td>
-                <td>{day_date || '-'}</td>
-                <td className="number-cell">{insert_count}</td>
-                <td className="number-cell">{update_count}</td>
-                <td className="number-cell">{delete_count}</td>
-                <td className="number-cell">{stock_in_count}</td>
-                <td className="number-cell">{stock_out_count}</td>
+        <div className="table-wrapper">
+          <table className="glass-table">
+            <thead>
+              <tr>
+                <th>Day</th>
+                <th>Date</th>
+                <th>Insert</th>
+                <th>Update</th>
+                <th>Delete</th>
+                <th>Stock In</th>
+                <th>Stock Out</th>
               </tr>
-            ))}
-            <tr className="total-row">
-              <td colSpan={2} className="total-label">Total</td>
-              <td className="number-cell total-value">{totals.insert}</td>
-              <td className="number-cell total-value">{totals.update}</td>
-              <td className="number-cell total-value">{totals.delete}</td>
-              <td className="number-cell total-value">{totals.stock_in}</td>
-              <td className="number-cell total-value">{totals.stock_out}</td>
-            </tr>
-            <tr className="average-row">
-              <td colSpan={2} className="average-label">Average per day</td>
-              <td className="number-cell average-value">{average.insert}</td>
-              <td className="number-cell average-value">{average.update}</td>
-              <td className="number-cell average-value">{average.delete}</td>
-              <td className="number-cell average-value">{average.stock_in}</td>
-              <td className="number-cell average-value">{average.stock_out}</td>
-            </tr>
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map(({ day_name, day_date, insert_count, update_count, delete_count, stock_in_count, stock_out_count }) => (
+                <tr key={day_name} className="table-row">
+                  <td className="day-cell">{day_name}</td>
+                  <td>{day_date || '-'}</td>
+                  <td className="number-cell">{insert_count}</td>
+                  <td className="number-cell">{update_count}</td>
+                  <td className="number-cell">{delete_count}</td>
+                  <td className="number-cell">{stock_in_count}</td>
+                  <td className="number-cell">{stock_out_count}</td>
+                </tr>
+              ))}
+              <tr className="total-row">
+                <td colSpan={2} className="total-label">Total</td>
+                <td className="number-cell total-value">{totals.insert}</td>
+                <td className="number-cell total-value">{totals.update}</td>
+                <td className="number-cell total-value">{totals.delete}</td>
+                <td className="number-cell total-value">{totals.stock_in}</td>
+                <td className="number-cell total-value">{totals.stock_out}</td>
+              </tr>
+              <tr className="average-row">
+                <td colSpan={2} className="average-label">Average per day</td>
+                <td className="number-cell average-value">{average.insert}</td>
+                <td className="number-cell average-value">{average.update}</td>
+                <td className="number-cell average-value">{average.delete}</td>
+                <td className="number-cell average-value">{average.stock_in}</td>
+                <td className="number-cell average-value">{average.stock_out}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
