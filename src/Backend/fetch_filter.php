@@ -43,8 +43,18 @@ $baseWhere = count($whereParts) ? "WHERE " . implode(" AND ", $whereParts) : '';
 $filters = [];
 
 // Pull distinct values for brand, category, desc_1, desc_4
-foreach (['brand', 'category', 'desc_1', 'desc_4'] as $col) {
-    $query = "SELECT DISTINCT `$col` FROM inventory $baseWhere AND `$col` IS NOT NULL AND `$col` <> '' ORDER BY `$col` ASC";
+$filterCols = ['brand', 'category', 'desc_1', 'desc_4'];
+
+foreach ($filterCols as $col) {
+    // Clone $whereParts and remove the one for current column
+    $colWhereParts = array_filter($whereParts, function($clause) use ($col) {
+        return stripos($clause, "$col =") === false;
+    });
+
+    $whereClause = count($colWhereParts) ? "WHERE " . implode(" AND ", $colWhereParts) : '';
+
+    $query = "SELECT DISTINCT `$col` FROM inventory $whereClause AND `$col` IS NOT NULL AND `$col` <> '' ORDER BY `$col` ASC";
+
     $result = $conn->query($query);
     $values = [];
     if ($result) {

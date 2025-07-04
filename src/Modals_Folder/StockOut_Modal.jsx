@@ -27,8 +27,8 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
     }
 
     const currentUnits = formData.location === 'warehouse'
-      ? parseInt(formData.wh_units || 0)
-      : parseInt(formData.store_units || 0);
+      ? parseInt(formData.units || 0)
+      : parseInt(formData.units || 0);
 
     const updatedUnits = currentUnits - qty;
 
@@ -132,7 +132,7 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 <label>Current Units</label>
                 <input 
                   type="text" 
-                  value={formData.location === 'warehouse' ? formData.wh_units || '0' : formData.store_units || '0'} 
+                  value={formData.location === 'warehouse' ? formData.units || '0' : formData.units || '0'} 
                   readOnly 
                   className="stockout-input" 
                 />
@@ -194,8 +194,8 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
               <input
                 type="text"
                 value={quantity ? 
-                  (parseInt(formData.location === 'warehouse' ? formData.wh_units || 0 : formData.store_units || 0) - parseInt(quantity)).toString() 
-                  : (formData.location === 'warehouse' ? formData.wh_units || '0' : formData.store_units || '0')
+                  (parseInt(formData.location === 'warehouse' ? formData.units || 0 : formData.units || 0) - parseInt(quantity)).toString() 
+                  : (formData.location === 'warehouse' ? formData.units || '0' : formData.units || '0')
                 }
                 readOnly
                 className="stockout-input"
