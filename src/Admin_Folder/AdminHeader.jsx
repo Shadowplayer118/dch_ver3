@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import {
   LayoutDashboard,
   Package,
@@ -19,9 +19,11 @@ import {
 
 function AdminHeader() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [username, setUsername] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
+  const [activeNavItem, setActiveNavItem] = useState("");
 
   useEffect(() => {
     const storedUsername = localStorage.getItem("username");
@@ -29,6 +31,11 @@ function AdminHeader() {
       setUsername(storedUsername);
     }
   }, []);
+
+  // Update active nav item when location changes
+  useEffect(() => {
+    setActiveNavItem(location.pathname);
+  }, [location.pathname]);
 
   const handleLogout = () => {
     localStorage.clear();
@@ -81,6 +88,19 @@ function AdminHeader() {
     },
   ];
 
+  // Function to check if a nav item is active
+  const isActive = (href) => {
+    return activeNavItem === href || location.pathname === href;
+  };
+
+  // Handle navigation click
+  const handleNavClick = (e, href) => {
+    e.preventDefault();
+    setActiveNavItem(href); // Set active state immediately
+    navigate(href);
+    setIsMobileMenuOpen(false);
+  };
+
   return (
     <header className="admin-header">
       <div className="header-container">
@@ -104,13 +124,15 @@ function AdminHeader() {
           <div className={`nav-links ${isMobileMenuOpen ? "nav-links-open" : ""} nav-items-${navItems.length}`}>
             {navItems.map((item, index) => {
               const IconComponent = item.icon;
+              const active = isActive(item.href);
+              
               return (
                 <a
                   key={index}
                   href={item.href}
-                  className="nav-link"
-                  onClick={() => setIsMobileMenuOpen(false)}
-                  title={item.label} // Added for accessibility
+                  className={`nav-link ${active ? "nav-link-active" : ""}`}
+                  onClick={(e) => handleNavClick(e, item.href)}
+                  title={item.label}
                 >
                   <IconComponent size={20} />
                   <span className="nav-text">{item.label}</span>

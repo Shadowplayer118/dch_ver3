@@ -101,7 +101,6 @@
 }
 
 .item-code {
-  font-family: monospace;
   font-weight: 600;
   font-size: 0.65rem;
   color: var(--primary-blue-light);
@@ -205,38 +204,122 @@
   min-width: 85px;
 }
 
+/* ENHANCED PRICE CONTAINER - More Prominent and Eye-Catching */
 .price-container {
-  background: rgba(76, 175, 80, 0.05);
-  padding: 0.4rem;
-  border-radius: 6px;
-  border: 1px solid rgba(76, 175, 80, 0.2);
-  box-shadow: 0 0 8px rgba(76, 175, 80, 0.1);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(46, 125, 50, 0.1) 100%);
+  padding: 0.6rem;
+  border-radius: 10px;
+  border: 2px solid rgba(76, 175, 80, 0.4);
+  box-shadow: 
+    0 0 15px rgba(76, 175, 80, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
   transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Subtle animated gradient overlay */
+.price-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.1), transparent);
+  transition: left 0.5s ease;
+}
+
+.price-container:hover::before {
+  left: 100%;
 }
 
 .price-container:hover {
-  box-shadow: 0 0 12px rgba(76, 175, 80, 0.3);
-  background: rgba(76, 175, 80, 0.08);
+  box-shadow: 
+    0 0 25px rgba(76, 175, 80, 0.5),
+    0 2px 15px rgba(0, 0, 0, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(46, 125, 50, 0.15) 100%);
+  transform: translateY(-2px);
+  border-color: rgba(76, 175, 80, 0.6);
 }
 
+/* ENHANCED PRICE ROW - Bigger, Bolder, More Noticeable */
 .price-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 0.1rem;
-  font-size: 0.6rem;
+  margin-bottom: 0.3rem;
+  font-size: 0.7rem;
+  padding: 0.2rem 0;
+  border-bottom: 1px solid rgba(76, 175, 80, 0.2);
+  transition: all 0.2s ease;
 }
 
+.price-row:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.price-row:hover {
+  background: rgba(76, 175, 80, 0.1);
+  border-radius: 4px;
+  padding: 0.2rem 0.3rem;
+  transform: translateX(2px);
+}
+
+/* ENHANCED PRICE LABEL - More Visible */
 .price-label {
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.6rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
+/* ENHANCED PRICE VALUE - Much More Prominent */
 .price-value {
-  font-weight: 600;
-  color: var(--secondary-green);
-  font-size: 0.6rem;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  font-weight: 700;
+  color: #4ade80;
+  font-size: 0.75rem;
+  text-shadow: 
+    0 1px 2px rgba(0, 0, 0, 0.3),
+    0 0 8px rgba(74, 222, 128, 0.4);
+  background: rgba(74, 222, 128, 0.1);
+  padding: 0.2rem 0.4rem;
+  border-radius: 6px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.2);
+  transition: all 0.2s ease;
+  display: inline-block;
+  min-width: 50px;
+  text-align: center;
+}
+
+.price-value:hover {
+  background: rgba(74, 222, 128, 0.2);
+  box-shadow: 0 0 12px rgba(74, 222, 128, 0.4);
+  transform: scale(1.05);
+  color: #22c55e;
+}
+
+/* Highlight effect for important prices */
+.price-row.featured .price-value {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(255, 193, 7, 0.1) 100%);
+  color: #ffd700;
+  border-color: rgba(255, 215, 0, 0.5);
+  box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  animation: priceGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes priceGlow {
+  0% {
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+  }
+  100% {
+    box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+  }
 }
 
 .actions-cell {
@@ -255,7 +338,7 @@
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 6px;
   padding: 0.25rem 0.4rem;
-  font-size: 0.6rem;
+  font-size: 0.8rem;
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: center;
@@ -334,8 +417,16 @@
   }
   
   .description-cell,
-  .location-info,
-  .price-container {
+  .location-info {
     padding: 0.3rem;
+  }
+  
+  .price-container {
+    padding: 0.4rem;
+  }
+  
+  .price-value {
+    font-size: 0.65rem;
+    padding: 0.15rem 0.3rem;
   }
 }

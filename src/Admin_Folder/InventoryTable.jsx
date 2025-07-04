@@ -60,10 +60,10 @@ function InventoryTable() {
 
       const params = new URLSearchParams({
         ...filters,
-        location: selectedLocation, 
+        location: selectedLocation,
         limit,
         offset,
-        sortField, 
+        sortField,
         sortOrder,
       }).toString();
 
@@ -236,7 +236,7 @@ function InventoryTable() {
   return (
     <div className="inventory-container">
       <AdminHeader />
-      
+
       <div className="inventory-content">
         {/* Main Controls Card */}
         <div className="glass-card">
@@ -250,8 +250,8 @@ function InventoryTable() {
                 <span className="button-icon">📊</span>
                 Export to Excel
               </button>
-              <button 
-                onClick={() => setIsAddOpen(true)} 
+              <button
+                onClick={() => setIsAddOpen(true)}
                 className="glass-button primary-button"
               >
                 <span className="button-icon">➕</span>
@@ -300,8 +300,8 @@ function InventoryTable() {
             <div className="filter-group">
               <label className="filter-label">
                 <span className="label-text">📍 Location Filter</span>
-                <button 
-                  onClick={handleLocationChange} 
+                <button
+                  onClick={handleLocationChange}
                   className="glass-button location-toggle"
                 >
                   <span className="button-label">Location:</span>
@@ -328,11 +328,7 @@ function InventoryTable() {
             </div>
           </div>
 
-          {error && (
-            <div className="error-message">
-              ⚠️ {error}
-            </div>
-          )}
+          {error && <div className="error-message">⚠️ {error}</div>}
         </div>
 
         {/* Table Card */}
@@ -476,15 +472,21 @@ function InventoryTable() {
                       <td className="prices-cell">
                         <div className="price-row">
                           <span className="price-label">Fixed:</span>
-                          <span className="price-value">₱{item.fixed_price}</span>
+                          <span className="price-value">
+                            ₱ {Number(item.fixed_price).toLocaleString()}
+                          </span>
                         </div>
                         <div className="price-row">
                           <span className="price-label">Retail:</span>
-                          <span className="price-value">₱{item.retail_price}</span>
+                          <span className="price-value">
+                            ₱ {Number(item.retail_price).toLocaleString()}
+                          </span>
                         </div>
                         <div className="price-row">
                           <span className="price-label">TSV:</span>
-                          <span className="price-value">{item.tsv}</span>
+                          <span className="price-value">
+                            ₱ {Number(item.tsv).toLocaleString()}
+                          </span>
                         </div>
                       </td>
                       <td className="actions-cell">
@@ -495,13 +497,13 @@ function InventoryTable() {
                           >
                             ✏️ Edit
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleViewHistory(item)}
                             className="action-btn history-btn"
                           >
                             📈 History
                           </button>
-                          <button 
+                          <button
                             onClick={() => handleDelete(item.item_code)}
                             className="action-btn delete-btn"
                           >
@@ -518,8 +520,8 @@ function InventoryTable() {
 
           {/* Pagination */}
           <div className="pagination-container">
-            <button 
-              onClick={goToPreviousPage} 
+            <button
+              onClick={goToPreviousPage}
               disabled={currentPage === 1}
               className="glass-button pagination-btn"
             >
@@ -544,8 +546,8 @@ function InventoryTable() {
               <span className="page-text">{totalPages}</span>
             </div>
 
-            <button 
-              onClick={goToNextPage} 
+            <button
+              onClick={goToNextPage}
               disabled={currentPage === totalPages}
               className="glass-button pagination-btn"
             >

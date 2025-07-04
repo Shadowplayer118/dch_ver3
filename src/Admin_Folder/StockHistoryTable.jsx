@@ -268,7 +268,7 @@ const StockHistoryTable = () => {
                     onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
                     className="glass-input"
                   />
-                  <span className="date-separator">to</span>
+                  <span className="date-separator" style={{ color: "white",  margin: "0.3rem 0", display: "inline-block" }}>to</span>
                   <input
                     type="date"
                     value={dateRange.end}
