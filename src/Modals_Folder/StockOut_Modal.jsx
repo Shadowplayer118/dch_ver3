@@ -81,7 +81,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
               />
             </div>
           </div>
-
           {/* Right Side - Form Fields */}
           <div className="stockout-fields-section">
             {/* Item Code */}
@@ -94,7 +93,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 className="stockout-input" 
               />
             </div>
-
             {/* Item Name and Brand in same row */}
             <div className="stockout-row">
               <div className="stockout-group">
@@ -116,7 +114,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 />
               </div>
             </div>
-
             {/* Category and Current Units in same row */}
             <div className="stockout-row">
               <div className="stockout-group">
@@ -138,7 +135,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 />
               </div>
             </div>
-
             {/* Location */}
             <div className="stockout-group">
               <label>Location</label>
@@ -149,7 +145,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 className="stockout-input" 
               />
             </div>
-
             {/* Quantity to Stock Out and Date in same row */}
             <div className="stockout-row">
               <div className="stockout-group">
@@ -175,7 +170,6 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
                 />
               </div>
             </div>
-
             {/* Requisition Number */}
             <div className="stockout-group">
               <label>Requisition Number</label>

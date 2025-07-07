@@ -17,6 +17,9 @@ import StaffInventoryTable from "./Staff_Folder/StaffInventory";
 
 import ServerDashboard from "./server";
 
+import ForumBoard from "./Admin_Folder/ForumBoard";
+
+import SelectItem from "./SelectItem";
 function AppRoutes() {
   return (
     <Router>
@@ -44,6 +47,13 @@ function AppRoutes() {
         <Route path="/SalesmanInventoryTable" element={<SalesmanInventoryTable />} />
 
         <Route path="/server" element={<ServerDashboard />} />
+
+
+        <Route path="/ForumBoard" element={<ForumBoard />} />
+
+        <Route path="/SelectItem" element={<SelectItem />} />
+
+
 
 
 
