@@ -73,7 +73,7 @@ function SalesmanInventoryTable() {
       }).toString();
 
       const response = await axios.get(
-        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
+        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`
       );
       const result = response.data;
 
@@ -101,7 +101,7 @@ function SalesmanInventoryTable() {
       if (filters.desc_4) params.append("desc_4", filters.desc_4);
       if (filters.area) params.append("area", filters.area);
 
-      const response = await axios.get(`http://localhost/dch_ver3/src/Backend/fetch_filter.php?${params.toString()}`);
+      const response = await axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php?${params.toString()}`);
       setUniqueValues(response.data);
     } catch (error) {
       console.error("Failed to load filters", error);
@@ -136,8 +136,8 @@ function SalesmanInventoryTable() {
       }).toString();
 
       const [inventoryResponse, filtersResponse] = await Promise.all([
-        axios.get(`http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`),
-        axios.get(`http://localhost/dch_ver3/src/Backend/fetch_filter.php`)
+        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`),
+        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php`)
       ]);
 
       const inventoryResult = inventoryResponse.data;
@@ -212,7 +212,7 @@ function SalesmanInventoryTable() {
 
     try {
       const response = await axios.post(
-        'http://localhost/dch_ver3/src/Backend/delete_inventory.php',
+        'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/delete_inventory.php',
         {
           item_code,
           username,
@@ -250,7 +250,7 @@ function SalesmanInventoryTable() {
       });
 
       const response = await axios.get(
-        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params.toString()}`
+        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params.toString()}`
       );
 
       const allFiltered = response.data.data;
@@ -513,7 +513,7 @@ function SalesmanInventoryTable() {
                     <tr key={item.inventory_id} className="table-row">
                       <td>
                         <img
-                          src={`http://localhost/dch_ver3/src/Backend/Images/${
+                          src={`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/${
                             item.img || "default_autoparts.png"
                           }`}
                           alt="item"

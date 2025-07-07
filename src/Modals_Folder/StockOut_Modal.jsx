@@ -45,7 +45,7 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost/dch_ver3/src/Backend/stock_out.php',
+        'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/stock_out.php',
         formDataToSend,
         {
           headers: {
@@ -75,7 +75,7 @@ const StockOut_Modal = ({ isOpen, onClose, itemData }) => {
             </div>
             <div className="stockout-image-preview">
               <img 
-                src={formData.image_path || 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'} 
+                src={formData.image_path || 'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png'} 
                 alt="Item Preview" 
                 className="stockout-preview-img" 
               />

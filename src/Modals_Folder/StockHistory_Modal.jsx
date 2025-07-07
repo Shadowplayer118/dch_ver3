@@ -21,7 +21,7 @@ const StockHistory_Modal = ({ isOpen, onClose, itemData }) => {
     const fetchHistory = async () => {
       try {
         const response = await axios.get(
-          'http://localhost/dch_ver3/src/Backend/fetch_stockHistory.php',
+          'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_stockHistory.php',
           {
             params: { item_code: itemData.item_code, location: itemData.location },
           }

@@ -35,7 +35,7 @@ const StockIn_Modal = ({ isOpen, onClose, itemData }) => {
 
     try {
       const response = await axios.post(
-        'http://localhost/dch_ver3/src/Backend/stock_in.php',
+        'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/stock_in.php',
         formDataToSend,
         {
           headers: {
@@ -63,7 +63,7 @@ const StockIn_Modal = ({ isOpen, onClose, itemData }) => {
             </div>
             <div className="stockin-image-preview">
               <img 
-                src={formData.image_path || 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'} 
+                src={formData.image_path || 'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png'} 
                 alt="Item Preview" 
                 className="stockin-preview-img" 
               />

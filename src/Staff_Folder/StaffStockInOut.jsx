@@ -99,7 +99,7 @@ function StaffStockInOutTable() {
       }).toString();
 
       const response = await axios.get(
-        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
+        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`
       );
       const result = response.data;
 
@@ -128,7 +128,7 @@ function StaffStockInOutTable() {
       if (filters.area) params.append("area", filters.area);
 
       const response = await axios.get(
-        `http://localhost/dch_ver3/src/Backend/fetch_filter.php?${params.toString()}`
+        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php?${params.toString()}`
       );
       setUniqueValues(response.data);
     } catch (error) {
@@ -164,8 +164,8 @@ function StaffStockInOutTable() {
       }).toString();
 
       const [inventoryResponse, filtersResponse] = await Promise.all([
-        axios.get(`http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`),
-        axios.get(`http://localhost/dch_ver3/src/Backend/fetch_filter.php`)
+        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`),
+        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php`)
       ]);
 
       const inventoryResult = inventoryResponse.data;
@@ -424,7 +424,7 @@ function StaffStockInOutTable() {
                     <tr key={item.inventory_id} className="table-row">
                       <td>
                         <img
-                          src={`http://localhost/dch_ver3/src/Backend/Images/${
+                          src={`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/${
                             item.img || "default_autoparts.png"
                           }`}
                           alt="item"

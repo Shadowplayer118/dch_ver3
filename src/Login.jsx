@@ -1,6 +1,15 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Eye, EyeOff, Package, Lock, User, ArrowRight, AlertCircle, X } from "lucide-react";
+import { useNavigate, Navigate } from "react-router-dom";
+import {
+  Eye,
+  EyeOff,
+  Package,
+  Lock,
+  User,
+  ArrowRight,
+  AlertCircle,
+  X,
+} from "lucide-react";
 
 function Login() {
   const [username, setUsername] = useState("");
@@ -11,6 +20,18 @@ function Login() {
   const [error, setError] = useState("");
   const [showError, setShowError] = useState(false);
   const navigate = useNavigate();
+
+  // 🔐 Auto-redirect if already logged in
+  const userType = localStorage.getItem("user_type");
+  if (userType === "admin") {
+    return <Navigate to="/AdminDashboard" replace />;
+  } else if (userType === "staff-wh" || userType === "staff-store") {
+    return <Navigate to="/StaffDashboard" replace />;
+  } else if (userType === "salesman") {
+    return <Navigate to="/SalesmanInventoryTable" replace />;
+  } else if (userType === "server") {
+    return <Navigate to="/server" replace />;
+  }
 
   const showErrorMessage = (message) => {
     setError(message);
@@ -46,12 +67,12 @@ function Login() {
         localStorage.setItem("username", data.username);
         localStorage.setItem("user_type", data.user_type);
 
-        // Delay for success
+        // Delay before redirecting
         setTimeout(() => {
           if (data.user_type === "admin") {
             navigate("/AdminDashboard");
           } else if (data.user_type === "staff-wh" || data.user_type === "staff-store") {
-            navigate("/StaffInventory");
+            navigate("/StaffDashboard");
           } else if (data.user_type === "salesman") {
             navigate("/SalesmanInventoryTable");
           } else if (data.user_type === "server") {
@@ -62,7 +83,6 @@ function Login() {
           }
         }, 1000);
       } else {
-        // Show loading for 800ms before error
         setTimeout(() => {
           setIsLoading(false);
           showErrorMessage(data.message || "Login failed");
@@ -95,7 +115,7 @@ function Login() {
       </div>
 
       {/* Error Toast */}
-      <div className={`error-toast ${showError ? 'show' : ''}`}>
+      <div className={`error-toast ${showError ? "show" : ""}`}>
         <div className="error-content">
           <AlertCircle size={20} className="error-icon" />
           <span className="error-message">{error}</span>
@@ -121,7 +141,7 @@ function Login() {
       )}
 
       <div className="card-container">
-        <div className={`login-card ${isLoading ? 'loading' : ''}`}>
+        <div className={`login-card ${isLoading ? "loading" : ""}`}>
           <div className="card-glow"></div>
 
           <div className="login-header">
@@ -130,7 +150,9 @@ function Login() {
               <div className="icon-ping"></div>
             </div>
             <h1 className="login-title">Welcome Back</h1>
-            <p className="login-subtitle">Sign in to continue to DCH Inventory System</p>
+            <p className="login-subtitle">
+              Sign in to continue to DCH Inventory System
+            </p>
           </div>
 
           <div className="login-form">
@@ -139,7 +161,9 @@ function Login() {
               <div className="input-container">
                 <User
                   size={20}
-                  className={`input-icon ${focusedField === 'username' ? 'focused' : ''}`}
+                  className={`input-icon ${
+                    focusedField === "username" ? "focused" : ""
+                  }`}
                 />
                 <input
                   type="text"
@@ -147,8 +171,8 @@ function Login() {
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  onFocus={() => setFocusedField('username')}
-                  onBlur={() => setFocusedField('')}
+                  onFocus={() => setFocusedField("username")}
+                  onBlur={() => setFocusedField("")}
                   className="login-input"
                   disabled={isLoading}
                 />
@@ -160,7 +184,9 @@ function Login() {
               <div className="input-container">
                 <Lock
                   size={20}
-                  className={`input-icon ${focusedField === 'password' ? 'focused' : ''}`}
+                  className={`input-icon ${
+                    focusedField === "password" ? "focused" : ""
+                  }`}
                 />
                 <input
                   type={showPassword ? "text" : "password"}
@@ -168,8 +194,8 @@ function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  onFocus={() => setFocusedField('password')}
-                  onBlur={() => setFocusedField('')}
+                  onFocus={() => setFocusedField("password")}
+                  onBlur={() => setFocusedField("")}
                   className="login-input password-input"
                   disabled={isLoading}
                 />
@@ -197,7 +223,7 @@ function Login() {
                   </>
                 ) : (
                   <>
-                    <span style={{ marginRight: '8px' }}>Sign In</span>
+                    <span style={{ marginRight: "8px" }}>Sign In</span>
                     <ArrowRight size={20} />
                   </>
                 )}
