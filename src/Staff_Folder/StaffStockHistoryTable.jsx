@@ -3,19 +3,25 @@ import axios from 'axios';
 import StaffHeader from './StaffHeader';
 import * as XLSX from 'xlsx';
 
-const StaffStockHistoryTable = () => {
+const StockHistoryTable = () => {
   const [stockHistory, setStockHistory] = useState([]);
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState(() => ({
+  
+  // Default filter values - cleaner initialization like Staff version
+  const defaultFilters = {
     brand: '',
     category: '',
     trans_type: '',
     location: localStorage.getItem('selectedLocation') || 'ALL',
-  }));
+  };
+  
+  const [filters, setFilters] = useState(defaultFilters);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
   const rowsPerPage = 10;
   const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const locationOptions = ['ALL', 'STORE', 'WAREHOUSE'];
 
@@ -62,10 +68,51 @@ const StaffStockHistoryTable = () => {
         `http://localhost/dch_ver3/src/Backend/load_stockHistory.php?${params.toString()}`
       );
       setStockHistory(response.data.data || []);
+      setTotalItems(response.data.total || 0);
       setError(null);
     } catch (error) {
       console.error('Error fetching stock history:', error);
       setError('Failed to load stock history data');
+    }
+  };
+
+  // Improved refresh function that resets everything to default
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    
+    try {
+      // Reset all filters and pagination to default
+      setSearch('');
+      setFilters(defaultFilters);
+      setDateRange({ start: '', end: '' });
+      setCurrentPage(1);
+      setSortBy('trans_date');
+      setSortDir('DESC');
+      const defaultLocation = 'ALL';
+      setFilters(prev => ({ ...prev, location: defaultLocation }));
+      localStorage.setItem('selectedLocation', defaultLocation);
+      
+      // Fetch fresh data with default parameters
+      const params = new URLSearchParams();
+      params.append('sort_by', 'trans_date');
+      params.append('sort_dir', 'DESC');
+
+      const response = await axios.get(
+        `http://localhost/dch_ver3/src/Backend/load_stockHistory.php?${params.toString()}`
+      );
+      
+      setStockHistory(response.data.data || []);
+      setTotalItems(response.data.total || 0);
+      
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      setError("Failed to refresh data");
+    } finally {
+      // Always set refreshing to false, whether success or error
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500);
     }
   };
 
@@ -91,9 +138,10 @@ const StaffStockHistoryTable = () => {
               <th>Category</th>
               <th>Transaction Type</th>
               <th>Units</th>
-              <th>From</th>
+              <th>Location</th>
               <th>Date</th>
               <th>Encoder</th>
+              <th>Requisition Number</th>
             </tr>
           </thead>
           <tbody>
@@ -108,6 +156,7 @@ const StaffStockHistoryTable = () => {
                 <td>${entry.location}</td>
                 <td>${entry.trans_date}</td>
                 <td>${entry.username}</td>
+                <td>${entry.requisition_number}</td>
               </tr>`).join('')}
           </tbody>
         </table>
@@ -175,8 +224,19 @@ const StaffStockHistoryTable = () => {
         {/* Main Controls Card */}
         <div className="glass-card">
           <div className="card-header">
-            <h2 className="card-title">📈 Stock History Management</h2>
+            <h2 className="card-title">📈 Staff Stock History Management</h2>
             <div className="action-buttons">
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="glass-button refresh-button"
+                title="Refresh stock history data and reset all filters"
+              >
+                <span className="button-icon">
+                  {isRefreshing ? "⏳" : "🔄"}
+                </span>
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </button>
               <button
                 onClick={handleExportPDF}
                 className="glass-button secondary-button"
@@ -298,6 +358,7 @@ const StaffStockHistoryTable = () => {
                   <th>Location</th>
                   <th>Date</th>
                   <th>Encoder</th>
+                  <th>Requisition #</th>
                 </tr>
                 <tr className="filter-row">
                   <th></th>
@@ -342,12 +403,13 @@ const StaffStockHistoryTable = () => {
                   <th></th>
                   <th></th>
                   <th></th>
+                  <th></th>
                 </tr>
               </thead>
               <tbody>
                 {paginatedData.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="no-data">
+                    <td colSpan="10" className="no-data">
                       📭 No stock history data found.
                     </td>
                   </tr>
@@ -378,6 +440,9 @@ const StaffStockHistoryTable = () => {
                       </td>
                       <td className="encoder-cell">
                         <div className="encoder-info">{entry.username}</div>
+                      </td>
+                      <td className="requisition-cell">
+                        <div className="requisition-info">{entry.requisition_number}</div>
                       </td>
                     </tr>
                   ))
@@ -428,4 +493,4 @@ const StaffStockHistoryTable = () => {
   );
 };
 
-export default StaffStockHistoryTable;
+export default StockHistoryTable;
