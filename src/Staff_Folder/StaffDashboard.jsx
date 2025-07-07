@@ -59,7 +59,7 @@ const InventorySummary = () => {
   return (
     <div className="glass-card inventory-summary">
       <div className="card-header">
-        <h2 className="card-title">📦 Inventory Summary</h2>
+        <h2 className="card-title">📦 Staff Inventory Summary</h2>
         <button className="glass-button location-toggle" onClick={toggleLocation}>
           <span className="button-label">Location:</span>
           <span className="button-value">{location}</span>

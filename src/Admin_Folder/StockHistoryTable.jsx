@@ -6,17 +6,22 @@ import * as XLSX from 'xlsx';
 const StockHistoryTable = () => {
   const [stockHistory, setStockHistory] = useState([]);
   const [search, setSearch] = useState('');
-  const [filters, setFilters] = useState(() => ({
+  
+  // Default filter values
+  const defaultFilters = {
     brand: '',
     category: '',
     trans_type: '',
     location: localStorage.getItem('selectedLocation') || 'ALL',
-  }));
+  };
+  
+  const [filters, setFilters] = useState(defaultFilters);
   const [dateRange, setDateRange] = useState({ start: '', end: '' });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const rowsPerPage = 10;
   const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const locationOptions = ['ALL', 'STORE', 'WAREHOUSE'];
 
@@ -68,6 +73,46 @@ const StockHistoryTable = () => {
     } catch (error) {
       console.error('Error fetching stock history:', error);
       setError('Failed to load stock history data');
+    }
+  };
+
+  // Improved refresh function that resets everything to default
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    
+    try {
+      // Reset all filters and pagination to default
+      setSearch('');
+      setFilters(defaultFilters);
+      setDateRange({ start: '', end: '' });
+      setCurrentPage(1);
+      setSortBy('trans_date');
+      setSortDir('DESC');
+      const defaultLocation = 'ALL';
+      setFilters(prev => ({ ...prev, location: defaultLocation }));
+      localStorage.setItem('selectedLocation', defaultLocation);
+      
+      // Fetch fresh data with default parameters
+      const params = new URLSearchParams();
+      params.append('sort_by', 'trans_date');
+      params.append('sort_dir', 'DESC');
+
+      const response = await axios.get(
+        `http://localhost/dch_ver3/src/Backend/load_stockHistory.php?${params.toString()}`
+      );
+      
+      setStockHistory(response.data.data || []);
+      setTotalItems(response.data.total || 0);
+      
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      setError("Failed to refresh data");
+    } finally {
+      // Always set refreshing to false, whether success or error
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500);
     }
   };
 
@@ -179,8 +224,19 @@ const StockHistoryTable = () => {
         {/* Main Controls Card */}
         <div className="glass-card">
           <div className="card-header">
-            <h2 className="card-title">📈 Stock History Management</h2>
+            <h2 className="card-title">📈 Admin Stock History Management</h2>
             <div className="action-buttons">
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="glass-button refresh-button"
+                title="Refresh stock history data and reset all filters"
+              >
+                <span className="button-icon">
+                  {isRefreshing ? "⏳" : "🔄"}
+                </span>
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </button>
               <button
                 onClick={handleExportPDF}
                 className="glass-button secondary-button"

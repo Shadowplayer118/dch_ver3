@@ -9,14 +9,18 @@ import StockHistory_Modal from "../Modals_Folder/StockHistory_Modal";
 
 function InventoryTable() {
   const [inventory, setInventory] = useState([]);
-  const [filters, setFilters] = useState({
+  
+  // Default filter values
+  const defaultFilters = {
     search: "",
     brand: "",
     category: "",
     desc_1: "",
     desc_4: "",
     area: "",
-  });
+  };
+  
+  const [filters, setFilters] = useState(defaultFilters);
   const [uniqueValues, setUniqueValues] = useState({
     brand: [],
     category: [],
@@ -25,6 +29,7 @@ function InventoryTable() {
     area: [],
   });
   const [error, setError] = useState(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -105,10 +110,63 @@ function InventoryTable() {
     }
   };
 
+  // Improved refresh function that resets everything to default
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    setError(null);
+    
+    try {
+      // Reset all filters and pagination to default
+      setFilters(defaultFilters);
+      setCurrentPage(1);
+      setSortField("item_code");
+      setSortOrder("asc");
+      setSelectedLocation("ALL");
+      localStorage.setItem("selectedLocation", "ALL");
+      
+      // Clear any selected items
+      setSelectedItem(null);
+      
+      // Fetch fresh data with default parameters
+      const params = new URLSearchParams({
+        ...defaultFilters,
+        location: "ALL",
+        limit,
+        offset: 0,
+        sortField: "item_code",
+        sortOrder: "asc",
+      }).toString();
+
+      const [inventoryResponse, filtersResponse] = await Promise.all([
+        axios.get(`http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`),
+        axios.get(`http://localhost/dch_ver3/src/Backend/fetch_filter.php`)
+      ]);
+
+      const inventoryResult = inventoryResponse.data;
+      if (!Array.isArray(inventoryResult.data)) {
+        throw new Error("Invalid inventory data format");
+      }
+
+      setInventory(inventoryResult.data);
+      setTotalItems(inventoryResult.total || 0);
+      setUniqueValues(filtersResponse.data);
+      
+    } catch (error) {
+      console.error("Error refreshing data:", error);
+      setError("Failed to refresh data");
+    } finally {
+      // Always set refreshing to false, whether success or error
+      setTimeout(() => {
+        setIsRefreshing(false);
+      }, 500);
+    }
+  };
+
+  // UseEffect for initial load and when dependencies change
   useEffect(() => {
     fetchInventory();
     fetchUniqueFilters();
-  }, [filters, currentPage, selectedLocation, sortField, sortOrder, inventory]);
+  }, [filters, currentPage, selectedLocation, sortField, sortOrder]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -171,6 +229,8 @@ function InventoryTable() {
 
       if (response.data.success) {
         alert("Item deleted successfully.");
+        // Refresh the data after successful deletion
+        handleRefresh();
       } else {
         alert("Failed to delete item: " + response.data.message);
       }
@@ -201,10 +261,10 @@ function InventoryTable() {
         Units: "",
         "Item Code": item.item_code,
         Category: item.category,
-        "Description 1": item.desc_1,
-        "Description 2": item.desc_2,
-        "Description 3": item.desc_3,
-        "Description 4": item.desc_4,
+        "Item Name": item.desc_1,
+        Measurement: item.desc_2,
+        "Item Code 1": item.desc_3,
+        "Item Code 2": item.desc_4,
         Brand: item.brand,
         Location: item.location,
       }));
@@ -241,8 +301,19 @@ function InventoryTable() {
         {/* Main Controls Card */}
         <div className="glass-card">
           <div className="card-header">
-            <h2 className="card-title">📦 Inventory Management</h2>
+            <h2 className="card-title">📦 Admin Inventory Management</h2>
             <div className="action-buttons">
+              <button
+                onClick={handleRefresh}
+                disabled={isRefreshing}
+                className="glass-button refresh-button"
+                title="Refresh inventory data and reset all filters"
+              >
+                <span className="button-icon">
+                  {isRefreshing ? "⏳" : "🔄"}
+                </span>
+                {isRefreshing ? "Refreshing..." : "Refresh"}
+              </button>
               <button
                 onClick={handleExportFilteredToExcel}
                 className="glass-button secondary-button"
@@ -275,10 +346,10 @@ function InventoryTable() {
                     <option value="item_code">Item Code</option>
                     <option value="brand">Brand</option>
                     <option value="category">Category</option>
-                    <option value="desc_1">Description 1</option>
-                    <option value="desc_2">Description 2</option>
-                    <option value="desc_3">Description 3</option>
-                    <option value="desc_4">Description 4</option>
+                    <option value="desc_1">Item Name</option>
+                    <option value="desc_2">Measurement</option>
+                    <option value="desc_3">Item Code 1</option>
+                    <option value="desc_4">Item Code 2</option>
                     <option value="units">Units</option>
                     <option value="last_updated">Last Updated</option>
                     <option value="inventory_id">Sequence Added</option>
@@ -340,7 +411,9 @@ function InventoryTable() {
                   <th>Image</th>
                   <th>Item Code</th>
                   <th>Brand</th>
-                  <th>Description</th>
+                  <th>Item Name</th>
+                  <th>Measurement</th>
+                  <th>Product Codes</th>
                   <th>Category</th>
                   <th>Units</th>
                   <th>Area</th>
@@ -372,22 +445,23 @@ function InventoryTable() {
                       onChange={handleFilterChange}
                       className="glass-select filter-select"
                     >
-                      <option value="">All Desc 1</option>
+                      <option value="">All Item Names</option>
                       {uniqueValues.desc_1.map((val, i) => (
                         <option key={i} value={val}>
                           {val}
                         </option>
                       ))}
                     </select>
-                    <br />
+                  </th>
+                  <th></th>
+                  <th>
                     <select
                       name="desc_4"
                       value={filters.desc_4}
                       onChange={handleFilterChange}
                       className="glass-select filter-select"
-                      style={{ marginTop: "0.5rem" }}
                     >
-                      <option value="">All Desc 4</option>
+                      <option value="">All Item Codes</option>
                       {uniqueValues.desc_4.map((val, i) => (
                         <option key={i} value={val}>
                           {val}
@@ -433,7 +507,7 @@ function InventoryTable() {
               <tbody>
                 {inventory.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="no-data">
+                    <td colSpan="11" className="no-data">
                       📭 No inventory data found.
                     </td>
                   </tr>
@@ -450,16 +524,24 @@ function InventoryTable() {
                         />
                       </td>
                       <td className="item-code">{item.item_code}</td>
-                      <td>{item.brand}</td>
+                      <td className="brand-cell">
+                        <div className="brand-info">{item.brand}</div>
+                      </td>
                       <td className="description-cell">
-                        <div className="desc-line">
-                          {item.desc_1} {item.desc_2}
-                        </div>
-                        <div className="desc-line">
-                          {item.desc_3} {item.desc_4}
+                        <div className="desc-line">{item.desc_1}</div>
+                      </td>
+                      <td className="description-cell">
+                        <div className="desc-line">{item.desc_2}</div>
+                      </td>
+                      <td className="description-cell">
+                        <div className="desc-combined">
+                          <div className="desc-line">{item.desc_3}</div>
+                          <div className="desc-line">{item.desc_4}</div>
                         </div>
                       </td>
-                      <td>{item.category}</td>
+                      <td className="category-cell">
+                        <div className="category-info">{item.category}</div>
+                      </td>
                       <td className="units-cell">
                         <div className="units-value">{item.units}</div>
                       </td>
@@ -470,23 +552,25 @@ function InventoryTable() {
                         </div>
                       </td>
                       <td className="prices-cell">
-                        <div className="price-row">
-                          <span className="price-label">Fixed:</span>
-                          <span className="price-value">
-                            ₱ {Number(item.fixed_price).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="price-row">
-                          <span className="price-label">Retail:</span>
-                          <span className="price-value">
-                            ₱ {Number(item.retail_price).toLocaleString()}
-                          </span>
-                        </div>
-                        <div className="price-row">
-                          <span className="price-label">TSV:</span>
-                          <span className="price-value">
-                            ₱ {Number(item.tsv).toLocaleString()}
-                          </span>
+                        <div className="price-container">
+                          <div className="price-row">
+                            <span className="price-label">Fixed:</span>
+                            <span className="price-value">
+                              ₱ {Number(item.fixed_price).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="price-row">
+                            <span className="price-label">Retail:</span>
+                            <span className="price-value">
+                              ₱ {Number(item.retail_price).toLocaleString()}
+                            </span>
+                          </div>
+                          <div className="price-row">
+                            <span className="price-label">TSV:</span>
+                            <span className="price-value">
+                              ₱ {Number(item.tsv).toLocaleString()}
+                            </span>
+                          </div>
                         </div>
                       </td>
                       <td className="actions-cell">
@@ -514,7 +598,7 @@ function InventoryTable() {
                     </tr>
                   ))
                 )}
-              </tbody>
+              </tbody>  
             </table>
           </div>
 
@@ -561,6 +645,7 @@ function InventoryTable() {
       <AddInventory_Modal
         isOpen={isAddOpen}
         onClose={() => setIsAddOpen(false)}
+        onSuccess={handleRefresh}
       />
 
       {isEditModalOpen && selectedItem && (
@@ -568,6 +653,7 @@ function InventoryTable() {
           isOpen={isEditModalOpen}
           onClose={() => setIsEditModalOpen(false)}
           initialData={selectedItem}
+          onSuccess={handleRefresh} 
         />
       )}
 
