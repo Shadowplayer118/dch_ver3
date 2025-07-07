@@ -145,7 +145,7 @@ const ForumBoard = () => {
           {/* Filters */}
           <div className="glass-card">
             <div className="card-header">
-              <h2 className="card-title">📝 Forum Requests</h2>
+              <h2 className="card-title">📝 Admin Forum Requests</h2>
             </div>
             <div className="controls-section">
               <div className="filter-group">

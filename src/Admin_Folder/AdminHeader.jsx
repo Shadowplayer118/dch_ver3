@@ -7,21 +7,14 @@ import {
   TrendingUp,
   LogOut,
   User,
-  Menu,
-  X,
   ChevronDown,
-  Settings,
-  Users,
-  BarChart3,
-  FileText,
-  Bell,
+  MessageSquare,
 } from "lucide-react";
 
 function AdminHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState("");
 
@@ -42,10 +35,6 @@ function AdminHeader() {
     navigate("/");
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   const toggleUserDropdown = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
@@ -64,7 +53,7 @@ function AdminHeader() {
     };
   }, []);
 
-  // Extended navItems array to demonstrate the automatic icon-only behavior
+  // Nav items configuration
   const navItems = [
     {
       href: "/AdminDashboard",
@@ -86,6 +75,11 @@ function AdminHeader() {
       icon: TrendingUp,
       label: "History",
     },
+    {
+      href: "/ForumBoard",
+      icon: MessageSquare,
+      label: "Forum Board",
+    },
   ];
 
   // Function to check if a nav item is active
@@ -96,17 +90,19 @@ function AdminHeader() {
   // Handle navigation click
   const handleNavClick = (e, href) => {
     e.preventDefault();
-    setActiveNavItem(href); // Set active state immediately
+    setActiveNavItem(href);
     navigate(href);
-    setIsMobileMenuOpen(false);
   };
 
   useEffect(() => {
-  const storedUsername = localStorage.getItem("username");
-  if (!storedUsername) {
-    navigate("/login");
-  }
-}, [navigate]);
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Determine if we should show compact navigation (more than 6 items)
+  const shouldShowCompactNav = navItems.length > 6;
 
   return (
     <header className="main-header">
@@ -128,7 +124,7 @@ function AdminHeader() {
 
         {/* Navigation Section */}
         <nav className="header-nav">
-          <div className={`nav-links ${isMobileMenuOpen ? "nav-links-open" : ""} nav-items-${navItems.length}`}>
+          <div className={`nav-links nav-items-${navItems.length}`}>
             {navItems.map((item, index) => {
               const IconComponent = item.icon;
               const active = isActive(item.href);
@@ -137,12 +133,16 @@ function AdminHeader() {
                 <a
                   key={index}
                   href={item.href}
-                  className={`nav-link ${active ? "nav-link-active" : ""}`}
+                  className={`nav-link ${active ? "nav-link-active" : ""} ${
+                    shouldShowCompactNav ? "nav-link-compact" : ""
+                  }`}
                   onClick={(e) => handleNavClick(e, item.href)}
                   title={item.label}
                 >
                   <IconComponent size={20} />
-                  <span className="nav-text">{item.label}</span>
+                  {!shouldShowCompactNav && (
+                    <span className="nav-text">{item.label}</span>
+                  )}
                 </a>
               );
             })}
@@ -183,20 +183,8 @@ function AdminHeader() {
               )}
             </div>
           )}
-
-          <button
-            className="mobile-menu-toggle"
-            onClick={toggleMobileMenu}
-          >
-            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-overlay" onClick={toggleMobileMenu}></div>
-      )}
     </header>
   );
 }
