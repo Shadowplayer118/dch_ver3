@@ -25,6 +25,13 @@ function SalesHeader() {
     }
   }, []);
 
+    useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) {
+      navigate("/login");
+    }
+  }, [navigate])
+
   // Update active nav item when location changes
   useEffect(() => {
     setActiveNavItem(location.pathname);

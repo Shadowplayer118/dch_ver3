@@ -45,6 +45,14 @@ function StaffHeader() {
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
 
+
+    useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) {
+      navigate("/login");
+    }
+  }, [navigate])
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {

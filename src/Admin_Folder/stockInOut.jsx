@@ -183,7 +183,7 @@ function StockInOutTable() {
   useEffect(() => {
     fetchInventory();
     fetchUniqueFilters();
-  }, [filters, currentPage, selectedLocation, sortField, sortOrder]);
+  }, [filters, currentPage, selectedLocation, sortField, sortOrder, inventory]);
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;

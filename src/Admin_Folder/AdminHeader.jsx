@@ -101,6 +101,13 @@ function AdminHeader() {
     setIsMobileMenuOpen(false);
   };
 
+  useEffect(() => {
+  const storedUsername = localStorage.getItem("username");
+  if (!storedUsername) {
+    navigate("/login");
+  }
+}, [navigate]);
+
   return (
     <header className="main-header">
       <div className="header-container">

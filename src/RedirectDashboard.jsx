@@ -8,7 +8,6 @@ function RedirectDashboard() {
   } else if (userType === "staff-wh" || userType === "staff-store") {
     return <Navigate to="/StaffDashboard" replace />;
   } else {
-    // No user_type found, redirect to login
     return <Navigate to="/login" replace />;
   }
 }
