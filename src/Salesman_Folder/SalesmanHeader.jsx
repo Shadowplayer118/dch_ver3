@@ -5,8 +5,6 @@ import {
   List,
   LogOut,
   User,
-  Menu,
-  X,
   ChevronDown,
 } from "lucide-react";
 
@@ -14,7 +12,6 @@ function SalesHeader() {
   const navigate = useNavigate();
   const location = useLocation();
   const [username, setUsername] = useState("");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isUserDropdownOpen, setIsUserDropdownOpen] = useState(false);
   const [activeNavItem, setActiveNavItem] = useState("");
 
@@ -24,13 +21,6 @@ function SalesHeader() {
       setUsername(storedUsername);
     }
   }, []);
-
-    useEffect(() => {
-    const storedUsername = localStorage.getItem("username");
-    if (!storedUsername) {
-      navigate("/login");
-    }
-  }, [navigate])
 
   // Update active nav item when location changes
   useEffect(() => {
@@ -42,10 +32,6 @@ function SalesHeader() {
     navigate("/");
   };
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
-  };
-
   const toggleUserDropdown = () => {
     setIsUserDropdownOpen(!isUserDropdownOpen);
   };
@@ -53,7 +39,7 @@ function SalesHeader() {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (!event.target.closest('.sales-user-dropdown-container')) {
+      if (!event.target.closest('.user-dropdown-container')) {
         setIsUserDropdownOpen(false);
       }
     };
@@ -81,10 +67,19 @@ function SalesHeader() {
   // Handle navigation click
   const handleNavClick = (e, href) => {
     e.preventDefault();
-    setActiveNavItem(href); // Set active state immediately
+    setActiveNavItem(href);
     navigate(href);
-    setIsMobileMenuOpen(false);
   };
+
+  useEffect(() => {
+    const storedUsername = localStorage.getItem("username");
+    if (!storedUsername) {
+      navigate("/login");
+    }
+  }, [navigate]);
+
+  // Determine if we should show compact navigation (more than 6 items)
+  const shouldShowCompactNav = navItems.length > 6;
 
   return (
     <header className="main-header">
@@ -106,7 +101,7 @@ function SalesHeader() {
 
         {/* Navigation Section */}
         <nav className="header-nav">
-          <div className={`nav-links ${isMobileMenuOpen ? "nav-links-open" : ""} nav-items-${navItems.length}`}>
+          <div className={`nav-links nav-items-${navItems.length}`}>
             {navItems.map((item, index) => {
               const IconComponent = item.icon;
               const active = isActive(item.href);
@@ -115,12 +110,16 @@ function SalesHeader() {
                 <a
                   key={index}
                   href={item.href}
-                  className={`nav-link ${active ? "nav-link-active" : ""}`}
+                  className={`nav-link ${active ? "nav-link-active" : ""} ${
+                    shouldShowCompactNav ? "nav-link-compact" : ""
+                  }`}
                   onClick={(e) => handleNavClick(e, item.href)}
                   title={item.label}
                 >
                   <IconComponent size={20} />
-                  <span className="nav-text">{item.label}</span>
+                  {!shouldShowCompactNav && (
+                    <span className="nav-text">{item.label}</span>
+                  )}
                 </a>
               );
             })}
@@ -130,7 +129,7 @@ function SalesHeader() {
         {/* User Actions Section */}
         <div className="header-actions">
           {username && (
-            <div className="user-dropdown-container sales-user-dropdown-container">
+            <div className="user-dropdown-container">
               <button 
                 className="user-dropdown-trigger"
                 onClick={toggleUserDropdown}
@@ -161,20 +160,8 @@ function SalesHeader() {
               )}
             </div>
           )}
-
-          <button
-            className="mobile-menu-toggle"
-            onClick={toggleMobileMenu}
-          >
-            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
         </div>
       </div>
-
-      {/* Mobile overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-overlay" onClick={toggleMobileMenu}></div>
-      )}
     </header>
   );
 }
