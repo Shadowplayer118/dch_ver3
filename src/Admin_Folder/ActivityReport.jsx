@@ -41,7 +41,7 @@ const ActivityReportTable = () => {
     setLoading(true);
     try {
       const response = await axios.get(
-        "https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/load_activity.php"
+        "http://localhost/dch_ver3/src/Backend/load_activity.php"
       );
       setActivityReports(response.data.data || []);
       setError(null);

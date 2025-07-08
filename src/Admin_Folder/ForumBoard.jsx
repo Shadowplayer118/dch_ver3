@@ -61,7 +61,7 @@ const ForumBoard = () => {
 
       console.log('Fetching forums with params:', params);
       
-      const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/load_forum.php', {
+      const res = await axios.get('http://localhost/dch_ver3/src/Backend/load_forum.php', {
         params,
         timeout: 10000 // 10 second timeout
       });
@@ -88,7 +88,7 @@ const ForumBoard = () => {
   const fetchRequestDates = useCallback(async () => {
     try {
       console.log('Fetching request dates...');
-      const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_form_dates.php', {
+      const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_form_dates.php', {
         timeout: 10000
       });
       

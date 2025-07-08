@@ -10,8 +10,8 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
   const [imageFile, setImageFile] = useState(null);
   const [previewImage, setPreviewImage] = useState(
     initialData.img
-      ? `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/${initialData.img}`
-      : 'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png'
+      ? `http://localhost/dch_ver3/src/Backend/Images/${initialData.img}`
+      : 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'
   );
 
   const [options, setOptions] = useState({
@@ -35,7 +35,7 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
 
     try {
       const res = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/check_item_code.php?prefix=${prefix}`
+        `http://localhost/dch_ver3/src/Backend/check_item_code.php?prefix=${prefix}`
       );
       const lastCode = res.data;
 
@@ -73,7 +73,7 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
 
     const fetchOptions = async () => {
       try {
-        const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_options.php');
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_options.php');
         setOptions(res.data);
       } catch (err) {
         console.error('Failed to fetch options:', err);
@@ -91,8 +91,8 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
 
     setPreviewImage(
       initialData.img
-        ? `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/${initialData.img}`
-        : 'https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png'
+        ? `http://localhost/dch_ver3/src/Backend/Images/${initialData.img}`
+        : 'http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png'
     );
   }, [initialData]);
 
@@ -132,7 +132,7 @@ const EditInventory_Modal = ({ isOpen, onClose, initialData }) => {
         data.append('img', imageFile);
       }
 
-      await axios.post('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/edit_inventory.php', data, {
+      await axios.post('http://localhost/dch_ver3/src/Backend/edit_inventory.php', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 

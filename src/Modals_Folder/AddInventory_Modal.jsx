@@ -33,13 +33,13 @@ const AddInventory_Modal = ({ isOpen, onClose }) => {
     area: []
   });
 
-  const [previewImage, setPreviewImage] = useState('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png');
+  const [previewImage, setPreviewImage] = useState('http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png');
 
   useEffect(() => {
     if (!isOpen) return;
     const fetchOptions = async () => {
       try {
-        const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_options.php');
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_options.php');
         setOptions(res.data);
       } catch (err) {
         console.error('Failed to fetch options:', err);
@@ -66,7 +66,7 @@ const AddInventory_Modal = ({ isOpen, onClose }) => {
       const prefix = `${catPart}${brandPart}`;
 
       try {
-        const res = await axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/check_item_code.php?prefix=${prefix}`);
+        const res = await axios.get(`http://localhost/dch_ver3/src/Backend/check_item_code.php?prefix=${prefix}`);
         const lastCode = res.data;
 
         let newIncrement = "0001";
@@ -118,7 +118,7 @@ const AddInventory_Modal = ({ isOpen, onClose }) => {
         data.append('img', imageFile);
       }
 
-      await axios.post('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/add_inventory.php', data, {
+      await axios.post('http://localhost/dch_ver3/src/Backend/add_inventory.php', data, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
 
@@ -141,7 +141,7 @@ const AddInventory_Modal = ({ isOpen, onClose }) => {
       });
 
       setImageFile(null);
-      setPreviewImage('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/default_autoparts.png');
+      setPreviewImage('http://localhost/dch_ver3/src/Backend/Images/default_autoparts.png');
       onClose();
     } catch (error) {
       console.error('Error adding item:', error);

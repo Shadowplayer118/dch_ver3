@@ -82,7 +82,7 @@ function StaffInventoryTable() {
       }).toString();
 
       const response = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`
+        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`
       );
       const result = response.data;
 
@@ -111,7 +111,7 @@ function StaffInventoryTable() {
       if (filters.area) params.append("area", filters.area);
 
       const response = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php?${params.toString()}`
+        `http://localhost/dch_ver3/src/Backend/fetch_filter.php?${params.toString()}`
       );
       setUniqueValues(response.data);
     } catch (error) {
@@ -147,8 +147,8 @@ function StaffInventoryTable() {
       }).toString();
 
       const [inventoryResponse, filtersResponse] = await Promise.all([
-        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params}`),
-        axios.get(`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_filter.php`)
+        axios.get(`http://localhost/dch_ver3/src/Backend/inventory_load.php?${params}`),
+        axios.get(`http://localhost/dch_ver3/src/Backend/fetch_filter.php`)
       ]);
 
       const inventoryResult = inventoryResponse.data;
@@ -223,7 +223,7 @@ function StaffInventoryTable() {
 
     try {
       const response = await axios.post(
-        "https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/delete_inventory.php",
+        "http://localhost/dch_ver3/src/Backend/delete_inventory.php",
         {
           item_code,
           username,
@@ -261,7 +261,7 @@ function StaffInventoryTable() {
       });
 
       const response = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_load.php?${params.toString()}`
+        `http://localhost/dch_ver3/src/Backend/inventory_load.php?${params.toString()}`
       );
 
       const allFiltered = response.data.data;
@@ -525,7 +525,7 @@ function StaffInventoryTable() {
                     <tr key={item.inventory_id} className="table-row">
                       <td>
                         <img
-                          src={`https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/Images/${
+                          src={`http://localhost/dch_ver3/src/Backend/Images/${
                             item.img || "default_autoparts.png"
                           }`}
                           alt="item"

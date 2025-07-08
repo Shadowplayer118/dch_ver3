@@ -12,7 +12,7 @@ const ServerDashboard = () => {
   };
 
   const triggerBackup = () => {
-    axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/server_backup.php')
+    axios.get('http://localhost/dch_ver3/src/Backend/server_backup.php')
       .then(res => {
         console.log("✅ Manual backup triggered:", res.data);
         alert("✅ Backup triggered successfully.");
@@ -24,7 +24,7 @@ const ServerDashboard = () => {
   };
 
   const triggerCheck = () => {
-    axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/check_stock_history.php')
+    axios.get('http://localhost/dch_ver3/src/Backend/check_stock_history.php')
       .then(res => {
         console.log("🔄 Manual stock check:", res.data);
         alert("🔄 Stock history check completed.");
@@ -36,7 +36,7 @@ const ServerDashboard = () => {
   };
 
   const triggerThresholdCheck = () => {
-    axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/notify_threshold.php')
+    axios.get('http://localhost/dch_ver3/src/Backend/notify_threshold.php')
       .then(res => {
         console.log("📉 Threshold inventory check:", res.data);
         alert("📉 Threshold check completed.");

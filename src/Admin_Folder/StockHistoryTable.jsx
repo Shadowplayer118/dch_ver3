@@ -65,7 +65,7 @@ const StockHistoryTable = () => {
       }
 
       const response = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/load_stockHistory.php?${params.toString()}`
+        `http://localhost/dch_ver3/src/Backend/load_stockHistory.php?${params.toString()}`
       );
       setStockHistory(response.data.data || []);
       setTotalItems(response.data.total || 0);
@@ -99,7 +99,7 @@ const StockHistoryTable = () => {
       params.append('sort_dir', 'DESC');
 
       const response = await axios.get(
-        `https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/load_stockHistory.php?${params.toString()}`
+        `http://localhost/dch_ver3/src/Backend/load_stockHistory.php?${params.toString()}`
       );
       
       setStockHistory(response.data.data || []);

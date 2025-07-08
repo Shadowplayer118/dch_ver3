@@ -33,7 +33,7 @@ const InventorySummary = () => {
     const fetchSummary = async () => {
       setLoading(true);
       try {
-        const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/inventory_summary.php', {
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/inventory_summary.php', {
           params: { location },
         });
         
@@ -139,7 +139,7 @@ const WeeklyActivityReport = ({ selectedUser, selectedWeek }) => {
       setLoading(true);
       try {
         const yearweek = dateToYearWeek(selectedWeek);
-        const response = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/load_activitytable.php', {
+        const response = await axios.get('http://localhost/dch_ver3/src/Backend/load_activitytable.php', {
           params: {
             username: selectedUser || '',
             yearweek: yearweek || '',
@@ -273,7 +273,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const res = await axios.get('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/fetch_user.php');
+        const res = await axios.get('http://localhost/dch_ver3/src/Backend/fetch_user.php');
         setUsers(res.data);
       } catch (error) {
         console.error('Failed to load users:', error);
@@ -293,7 +293,7 @@ const AdminDashboard = () => {
   };
 
   const handleExportDatabase = () => {
-    window.open('https://slategrey-stingray-471759.hostingersite.com/api/backend_2/Backend/export_database.php', '_blank');
+    window.open('http://localhost/dch_ver3/src/Backend/export_database.php', '_blank');
   };
 
   return (
